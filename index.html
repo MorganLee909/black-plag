@@ -35,11 +35,13 @@
         <button onclick="setModule(21)">Module 21</button>
     </div>
 
-    <div id="search" style="display:none">
+    <form id="search" style="display:none" onsubmit="submitSearch()">
         <h2>Enter code snippet to search</h2>
 
-        <textarea id="searchSnippet"></textarea>
-    </div>
+        <textarea id="snippet" id="searchSnippet"></textarea>
+
+        <input type="submit" value="Submit"/>
+    </form>
 
     <div id="upload" style="display:none">
         <h2>Enter GitHub repository link to archive</h2>
@@ -61,6 +63,35 @@
             module = num;
             document.getElementById("modules").style.display = "none";
             document.getElementById(usage).style.display = "flex";
+        }
+
+        let submitSearch = ()=>{
+            event.preventDefault();
+            let snippet = document.getElementById("snippet").value;
+
+            snippet = snippet.replaceAll("'", "\\'");
+            snippet = snippet.replaceAll('"', '\\"');
+            console.log(snippet);
+
+            let data = {
+                snippet: snippet,
+                module: module
+            };
+
+            fetch("/search", {
+                method: "post",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            })
+                .then(r=>r.json())
+                .then((response)=>{
+                    console.log(response);
+                })
+                .catch((err)=>{
+                    console.log(err);
+                });
         }
     </script>
 </body>
