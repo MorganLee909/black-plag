@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <Title>Black Plag</Title>
+</head>
+<body>
+    <div id="usage">
+        <h2>What would you like to do?</h2>
+
+        <button onclick="usageBut(this.parentElement, 'search')">Search for plagiarised repository</button>
+
+        <button onclick="usageBut(this.parentElement, 'upload')">Upload plagiarised repository</button>
+    </div>
+
+    <div id="modules" style="display:none">
+        <h2>Which module?</h2>
+
+        <button onclick="setModule(1)">Module 1</button>
+        <button onclick="setModule(2)">Module 2</button>
+        <button onclick="setModule(3)">Module 3</button>
+        <button onclick="setModule(4)">Module 4</button>
+        <button onclick="setModule(5)">Module 5</button>
+        <button onclick="setModule(6)">Module 6</button>
+        <button onclick="setModule(9)">Module 9</button>
+        <button onclick="setModule(10)">Module 10</button>
+        <button onclick="setModule(11)">Module 11</button>
+        <button onclick="setModule(12)">Module 12</button>
+        <button onclick="setModule(13)">Module 13</button>
+        <button onclick="setModule(14)">Module 14</button>
+        <button onclick="setModule(17)">Module 17</button>
+        <button onclick="setModule(18)">Module 18</button>
+        <button onclick="setModule(19)">Module 19</button>
+        <button onclick="setModule(20)">Module 20</button>
+        <button onclick="setModule(21)">Module 21</button>
+    </div>
+
+    <div id="search" style="display:none">
+        <h2>Enter code snippet to search</h2>
+
+        <textarea id="searchSnippet"></textarea>
+    </div>
+
+    <div id="upload" style="display:none">
+        <h2>Enter GitHub repository link to archive</h2>
+
+        <input id="repoLink" type="url"/>
+    </div>
+
+    <script>
+        let usage = "";
+        let module = 0;
+
+        let usageBut = (elem, type)=>{
+            usage = type;
+            elem.style.display = "none";
+            document.getElementById("modules").style.display = "flex";
+        }
+
+        let setModule = (num)=>{
+            module = num;
+            document.getElementById("modules").style.display = "none";
+            document.getElementById(usage).style.display = "flex";
+        }
+    </script>
+</body>
+</html>

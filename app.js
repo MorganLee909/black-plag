@@ -21,6 +21,7 @@ app.use(compression());
 app.use(express.json());
 
 require("./routes.js")(app);
+app.get("/", (req, res)=>{res.sendFile(`${__dirname}/index.html`)});
 
 if(process.env.NODE_ENV === "production"){
     module.exports = app;
