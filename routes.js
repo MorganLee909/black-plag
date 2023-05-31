@@ -14,15 +14,19 @@ module.exports = (app)=>{
     response = Repo
     */
     app.post("/upload", async (req, res)=>{
-        let repo = await Repo.findOne({link: req.body.url});
+        let link = req.body.url.trim();
+        link = link.replace(".git", "");
+
+        let repo = await Repo.findOne({link: link});
         if(repo !== null) return res.json("Repo already archived");
-        let linkParts = req.body.url.split("/");
+        
+        let linkParts = link.split("/");
         let id = uuid();
-        let cloneCommand = `git clone ${req.body.url} ${__dirname}/repos/module${req.body.module}/${id}`;
+        let cloneCommand = `git clone ${link} ${__dirname}/repos/module${req.body.module}/${id}`;
 
         exec(cloneCommand, async (err, stdout, stderr)=>{
             let newRepo = new Repo({
-                link: req.body.url,
+                link: link,
                 user: linkParts[3],
                 repo: linkParts[4],
                 uuid: id,
