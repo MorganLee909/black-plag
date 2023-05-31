@@ -1,5 +1,7 @@
 const Repo = require("./repo.js");
 
+const search = require("./search.js");
+
 const {exec} = require("child_process");
 const uuid = require("crypto").randomUUID;
 
@@ -14,28 +16,46 @@ module.exports = (app)=>{
     response = Repo
     */
     app.post("/upload", async (req, res)=>{
-        let link = req.body.url.trim();
-        link = link.replace(".git", "");
+        try{
+            let link = req.body.url.trim();
+            link = link.replace(".git", "");
 
-        let repo = await Repo.findOne({link: link});
-        if(repo !== null) return res.json("Repo already archived");
-        
-        let linkParts = link.split("/");
-        let id = uuid();
-        let cloneCommand = `git clone ${link} ${__dirname}/repos/module${req.body.module}/${id}`;
+            let repo = await Repo.findOne({link: link});
+            if(repo !== null) return res.json("Repo already archived");
+            
+            let linkParts = link.split("/");
+            let id = uuid();
+            let cloneCommand = `git clone ${link} ${__dirname}/repos/module${req.body.module}/${id}`;
 
-        exec(cloneCommand, async (err, stdout, stderr)=>{
-            let newRepo = new Repo({
-                link: link,
-                user: linkParts[3],
-                repo: linkParts[4],
-                uuid: id,
-                notes: req.body.notes ? req.body.notes : ""
+            exec(cloneCommand, async (err, stdout, stderr)=>{
+                let newRepo = new Repo({
+                    link: link,
+                    user: linkParts[3],
+                    repo: linkParts[4],
+                    uuid: id,
+                    notes: req.body.notes ? req.body.notes : ""
+                });
+
+                await newRepo.save();
+
+                res.json(newRepo);
             });
+        }catch(e){
+            console.error(e);
+            res.json("Something went wrong");
+        }
+    });
 
-            await newRepo.save();
-
-            res.json(newRepo);
-        });
+    /*
+    POST: search stored repos for matching string
+    req.body = {
+        snippet: String
+        module: Number
+    }
+    response = [Repo]
+    */
+    app.post("/search", async (req, res)=>{
+        search(`${__dirname}/repos/module${req.body.module}`, req.body.snippet);
+        res.json("done");
     });
 }
