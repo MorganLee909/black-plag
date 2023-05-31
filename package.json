@@ -1,0 +1,23 @@
+{
+  "name": "black-plag",
+  "version": "1.0.0",
+  "description": "Tool for saving and finding plagiarism on GitHub",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MorganLee909/black-plag.git"
+  },
+  "author": "Lee Morgan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MorganLee909/black-plag/issues"
+  },
+  "homepage": "https://github.com/MorganLee909/black-plag#readme",
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^7.2.2"
+  }
+}
