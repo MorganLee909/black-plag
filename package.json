@@ -4,7 +4,9 @@
   "description": "Tool for saving and finding plagiarism on GitHub",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon --ignore repos/ app.js",
+    "start": "node app.js"
   },
   "repository": {
     "type": "git",
