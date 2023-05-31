@@ -4,6 +4,7 @@ const search = require("./search.js");
 
 const {exec} = require("child_process");
 const uuid = require("crypto").randomUUID;
+const fs = require("fs");
 
 module.exports = (app)=>{
     /*
@@ -36,6 +37,16 @@ module.exports = (app)=>{
                     notes: req.body.notes ? req.body.notes : ""
                 });
 
+                let rmOptions = {
+                    recursive: true,
+                    force: true
+                };
+
+                fs.rm(`${__dirname}/repos/module${req.body.module}/${id}/node_modules/`, rmOptions, (err)=>{});
+                fs.rm(`${__dirname}/repos/module${req.body.module}/${id}/.git/`, rmOptions, (err)=>{console.error(err)});
+                fs.rm(`${__dirname}/repos/module${req.body.module}/${id}/package-lock.json`, (err)=>{});
+                fs.rm(`${__dirname}/repos/module${req.body.module}/${id}/.gitignore`, (err)=>{});
+                
                 await newRepo.save();
 
                 res.json(newRepo);
