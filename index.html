@@ -30,7 +30,7 @@
             background: #a50b00;
         }
 
-        .reset{
+        #reset{
             position: absolute;
             top: 35px;
             right: 35px;
@@ -99,10 +99,16 @@
             width: 500px;
             box-shadow: 0 0 3px black;
         }
+
+        #notification{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
     </style>
 </head>
 <body>
-    <button class="reset" onclick="reset()">Reset</button>
+    <button id="reset" onclick="reset()">Reset</button>
 
     <div id="usage">
         <h2>What would you like to do?</h2>
@@ -149,10 +155,16 @@
 
         <input id="repoLink" type="url" placeholder="REPO URL"/>
 
-        <input type="submi1t" value="Upload"/>
+        <input type="submit" value="Upload"/>
     </form>
 
     <div id="searchResults" style="display:none"></div>
+
+    <div id="notification" style="display:none">
+        <h2></h2>
+
+        <button onclick="reset()">Home</button>
+    </div>
 
     <template id="searchTemplate">
         <a class="searchTemplate" target="_blank">
@@ -180,6 +192,20 @@
             while(searchResults.children.length > 0){
                 searchResults.removeChild(searchResults.lastChild);
             }
+
+            document.getElementById("reset").style.display = "block";
+        }
+
+        let notify = (message)=>{
+            let elems = document.body.children;
+
+            for(let i = 0; i < elems.length; i++){
+                elems[i].style.display = "none";
+            }
+
+            let notification = document.getElementById("notification");
+            notification.children[0].textContent = message;
+            notification.style.display = "flex";
         }
 
         let usageBut = (elem, type)=>{
@@ -215,22 +241,26 @@
             })
                 .then(r=>r.json())
                 .then((response)=>{
-                    let container = document.getElementById("searchResults");
-                    let template = document.getElementById("searchTemplate").content.children[0];
-                    for(let i = 0; i < response.length; i++){
-                        let repo = template.cloneNode(true);
-                        repo.querySelector(".repoOwner").textContent = response[i].user;
-                        repo.querySelector(".searchResultsRepo").textContent = response[i].repo;
-                        repo.querySelector(".searchResultsLink").textContent = response[i].link;
-                        repo.href = response[i].link;
-                        container.appendChild(repo);
-                    }
+                    if(response.length === 0){
+                        notify("No matching code found");
+                    }else{
+                        let container = document.getElementById("searchResults");
+                        let template = document.getElementById("searchTemplate").content.children[0];
+                        for(let i = 0; i < response.length; i++){
+                            let repo = template.cloneNode(true);
+                            repo.querySelector(".repoOwner").textContent = response[i].user;
+                            repo.querySelector(".searchResultsRepo").textContent = response[i].repo;
+                            repo.querySelector(".searchResultsLink").textContent = response[i].link;
+                            repo.href = response[i].link;
+                            container.appendChild(repo);
+                        }
 
-                    document.getElementById("search").style.display = "none";
-                    container.style.display = "flex";
+                        document.getElementById("search").style.display = "none";
+                        container.style.display = "flex";
+                    }
                 })
                 .catch((err)=>{
-                    console.log(err);
+                    notify("Something went wrong. Please notify me (me@leemorgan.io)");
                 });
         }
 
@@ -245,15 +275,19 @@
                 body: JSON.stringify({
                     url: document.getElementById("repoLink").value,
                     module: module,
-                    notes: document.getElementById("repoNotes").value
+                    notes: ""
                 })
             })
                 .then(r=>r.json())
                 .then((response)=>{
-                    console.log(response);
+                    if(typeof(response) === "string"){
+                        notify(response);
+                    }else{
+                        notify("Repo has been uploaded to server");
+                    }
                 })
                 .catch((err)=>{
-                    console.log(err);
+                    notify("Something went wrong. Please notify me (me@leemorgan.io)");
                 });
         }
     </script>
