@@ -30,6 +30,12 @@
             background: #a50b00;
         }
 
+        .reset{
+            position: absolute;
+            top: 35px;
+            right: 35px;
+        }
+
         #usage{
             display: flex;
             flex-direction: column;
@@ -79,6 +85,8 @@
     </style>
 </head>
 <body>
+    <button class="reset" onclick="reset()">Reset</button>
+
     <div id="usage">
         <h2>What would you like to do?</h2>
 
@@ -130,6 +138,17 @@
     <script>
         let usage = "";
         let module = 0;
+
+        let reset = ()=>{
+            usage = "";
+            module = 0;
+
+            let sections = document.querySelectorAll("body > *");
+            sections[1].style.display = "flex";
+            for(let i = 2; i < sections.length; i++){
+                sections[i].style.display = "none"
+            }
+        }
 
         let usageBut = (elem, type)=>{
             usage = type;
