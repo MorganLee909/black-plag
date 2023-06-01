@@ -1,7 +1,5 @@
 const Repo = require("./repo.js");
 
-const search = require("./search.js");
-
 const {exec} = require("child_process");
 const uuid = require("crypto").randomUUID;
 const fs = require("fs");
@@ -65,8 +63,22 @@ module.exports = (app)=>{
     }
     response = [Repo]
     */
-    app.post("/search", async (req, res)=>{
-        search(`${__dirname}/repos/module${req.body.module}`, req.body.snippet);
-        res.json("done");
+    app.post("/search", async (req, res)=>{        
+        let command = `pcregrep -FlMr "${req.body.snippet}" ${__dirname}/repos/module${req.body.module}/`;
+
+        exec(command, async (err, stdout, stderr)=>{
+            let lines = stdout.split("\n");
+            let ids = [];
+            let lineCount = !lines[lines.length-1] ? lines.length - 1 : lines.length;
+            for(let i = 0; i < lineCount; i++){
+                id = lines[i].split(__dirname).pop();
+                id = id.split("/");
+                id = id[3] === "" ? id[4] : id[3];
+                ids.push(id);
+            }
+
+            let repos = await Repo.find({uuid: ids})
+            res.json(repos);
+        });
     });
 }
