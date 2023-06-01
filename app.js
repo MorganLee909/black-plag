@@ -11,6 +11,8 @@ let mongooseOptions = {
     useUnifiedTopology: true
 };
 
+let mongoString = "mongodb://127.0.0.1/plag";
+
 let httpsServer = {}
 if(process.env.NODE_ENV === "production"){
     httpsServer = https.createServer({
@@ -26,12 +28,10 @@ if(process.env.NODE_ENV === "production"){
         }
     });
 
-    mongooseOptions.auth = {authSource: "admin"};
-    mongooseOptions.user = "website";
-    mongooseOptions.pass = process.env.MONGODB_PASS;
+    mongoString = `mongodb://website:${process.env.MONGODB_PASS}@127.0.0.1:27107/plag?authSource=admin`;
 }
 
-mongoose.connect("mongodb://127.0.0.1/plag", mongooseOptions);
+mongoose.connect(mongoString, mongooseOptions);
 
 app.use(compression());
 app.use(express.json());
