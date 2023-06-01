@@ -28,7 +28,7 @@ if(process.env.NODE_ENV === "production"){
         }
     });
 
-    mongoString = `mongodb://website:${process.env.MONGODB_PASS}@127.0.0.1:27107/plag?authSource=admin`;
+    mongoString = `mongodb://website:${process.env.MONGODB_PASS}@127.0.0.1:27017/plag?authSource=admin`;
 }
 
 mongoose.connect(mongoString, mongooseOptions);
