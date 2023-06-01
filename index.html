@@ -67,6 +67,7 @@
         #search{
             display: flex;
             flex-direction: column;
+            max-width: 1000px;
         }
 
         textarea{
@@ -145,6 +146,8 @@
     <form id="search" style="display:none" onsubmit="submitSearch()">
         <h2>Enter code snippet to search</h2>
 
+        <p>Copy and paste a code snippet here that seems unique, such as a comment or a unique function. It will try to match exactly what you enter. Sometimes longer text snippets cause problems. So if you get nothing or an error, try something smaller. I am still working on this, so functionality is far from perfect.</p>
+
         <textarea id="snippet" id="searchSnippet"></textarea>
 
         <input type="submit" value="Submit"/>
@@ -152,6 +155,8 @@
 
     <form id="upload" style="display:none" onsubmit="submitUpload()">
         <h2>Enter GitHub repository link to archive</h2>
+
+        <p>Use web page link from the top level of the repo. For example: https://github.com/OWNER/REPO-NAME</p>
 
         <input id="repoLink" type="url" placeholder="REPO URL"/>
 
