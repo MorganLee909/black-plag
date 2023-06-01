@@ -3,6 +3,80 @@
 <head>
     <meta charset="utf-8"/>
     <Title>Black Plag</Title>
+    <style>
+        body{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #e1dddb;
+            min-height: 100vh;
+        }
+
+        h2{
+            font-size: 36px;
+            text-align: center;
+        }
+
+        button, input[type="submit"]{
+            background: #d23228;
+            color: white;
+            border: none;
+            font-size: 26px;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        button:hover, input[type="submit"]:hover{
+            background: #a50b00;
+        }
+
+        #usage{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #usage button{
+            width: 425px;
+            margin: 15px;
+        }
+
+        #modules{
+            display: flex;
+            flex-direction: column;
+            max-width: 85vw;
+        }
+
+        .moduleContainer{
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
+
+        .moduleContainer > *{
+            margin: 15px;
+            width: 175px;
+        }
+
+        #search{
+            display: flex;
+            flex-direction: column;
+        }
+
+        textarea{
+            height: 250px;
+            margin: 15px 0;
+        }
+
+        #upload{
+            display: flex;
+            flex-direction: column;
+        }
+
+        input[type="url"]{
+            margin: 15px 0;
+        }
+    </style>
 </head>
 <body>
     <div id="usage">
@@ -16,23 +90,25 @@
     <div id="modules" style="display:none">
         <h2>Which module?</h2>
 
-        <button onclick="setModule(1)">Module 1</button>
-        <button onclick="setModule(2)">Module 2</button>
-        <button onclick="setModule(3)">Module 3</button>
-        <button onclick="setModule(4)">Module 4</button>
-        <button onclick="setModule(5)">Module 5</button>
-        <button onclick="setModule(6)">Module 6</button>
-        <button onclick="setModule(9)">Module 9</button>
-        <button onclick="setModule(10)">Module 10</button>
-        <button onclick="setModule(11)">Module 11</button>
-        <button onclick="setModule(12)">Module 12</button>
-        <button onclick="setModule(13)">Module 13</button>
-        <button onclick="setModule(14)">Module 14</button>
-        <button onclick="setModule(17)">Module 17</button>
-        <button onclick="setModule(18)">Module 18</button>
-        <button onclick="setModule(19)">Module 19</button>
-        <button onclick="setModule(20)">Module 20</button>
-        <button onclick="setModule(21)">Module 21</button>
+        <div class="moduleContainer">
+            <button onclick="setModule(1)">Module 1</button>
+            <button onclick="setModule(2)">Module 2</button>
+            <button onclick="setModule(3)">Module 3</button>
+            <button onclick="setModule(4)">Module 4</button>
+            <button onclick="setModule(5)">Module 5</button>
+            <button onclick="setModule(6)">Module 6</button>
+            <button onclick="setModule(9)">Module 9</button>
+            <button onclick="setModule(10)">Module 10</button>
+            <button onclick="setModule(11)">Module 11</button>
+            <button onclick="setModule(12)">Module 12</button>
+            <button onclick="setModule(13)">Module 13</button>
+            <button onclick="setModule(14)">Module 14</button>
+            <button onclick="setModule(17)">Module 17</button>
+            <button onclick="setModule(18)">Module 18</button>
+            <button onclick="setModule(19)">Module 19</button>
+            <button onclick="setModule(20)">Module 20</button>
+            <button onclick="setModule(21)">Module 21</button>
+        </div>
     </div>
 
     <form id="search" style="display:none" onsubmit="submitSearch()">
@@ -46,9 +122,7 @@
     <form id="upload" style="display:none" onsubmit="submitUpload()">
         <h2>Enter GitHub repository link to archive</h2>
 
-        <input id="repoLink" type="url"/>
-
-        <textarea id="repoNotes"></textarea>
+        <input id="repoLink" type="url" placeholder="REPO URL"/>
 
         <input type="submit" value="Upload"/>
     </from>
