@@ -4,12 +4,21 @@
     <meta charset="utf-8"/>
     <Title>Black Plag</Title>
     <style>
+        :root{
+            --background: #12130F;
+            --button: #5B9279;
+            --buttonHover: #8FCB9B;
+            --text: #EAE6E5;
+            --other: #8F8073;
+        }
+
         body{
             display: flex;
             justify-content: center;
             align-items: center;
-            background: #e1dddb;
+            background: var(--background);
             min-height: 100vh;
+            color: var(--text);
         }
 
         h2{
@@ -18,8 +27,8 @@
         }
 
         button, input[type="submit"]{
-            background: #d23228;
-            color: white;
+            background: var(--button);
+            color: var(--text);
             border: none;
             font-size: 26px;
             padding: 10px;
@@ -27,7 +36,7 @@
         }
 
         button:hover, input[type="submit"]:hover{
-            background: #a50b00;
+            background: var(--buttonHover);
         }
 
         #reset{
@@ -88,17 +97,24 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            max-height: 100vh;
+            overflow-y: auto;
         }
 
         .searchTemplate{
             display: flex;
             justify-content: space-around;
             flex-wrap: wrap;
-            background: white;
-            color: black;
+            background: var(--other);
+            color: var(--text);
             text-decoration: none;
             width: 500px;
-            box-shadow: 0 0 3px black;
+            box-shadow: 0 0 3px white;
+            margin: 35px;
+        }
+
+        .searchTemplate:hover{
+            box-shadow: 0 0 5px white;
         }
 
         #notification{
@@ -204,6 +220,9 @@
             while(searchResults.children.length > 0){
                 searchResults.removeChild(searchResults.lastChild);
             }
+
+            document.getElementById("repoLink").value = "";
+            document.getElementById("snippet").value = "";
 
             document.getElementById("reset").style.display = "block";
         }
