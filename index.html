@@ -146,7 +146,14 @@
     <form id="search" style="display:none" onsubmit="submitSearch()">
         <h2>Enter code snippet to search</h2>
 
-        <p>Copy and paste a code snippet here that seems unique, such as a comment or a unique function. It will try to match exactly what you enter. Sometimes longer text snippets cause problems. So if you get nothing or an error, try something smaller. I am still working on this, so functionality is far from perfect.</p>
+        <p>Copy and paste a code snippet here that seems unique, such as a comment or a unique function.</p>
+
+        <p>Notes:</p>
+        <ul>
+            <li>It will try to find an exact match, so copy/paste exactly as the code is.</li>
+            <li>Currently the "/" character causes issues, so use code that doesn't have this. Working on fixing this.</li>
+            <li>This is not to be used as proof of plagiarism. Ensure to check the found repository. This is just a tool to help find potentially plagiarised repositories.</li>
+        </ul>
 
         <textarea id="snippet" id="searchSnippet"></textarea>
 

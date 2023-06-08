@@ -63,8 +63,9 @@ module.exports = (app)=>{
     }
     response = [Repo]
     */
-    app.post("/search", async (req, res)=>{        
-        let command = `pcregrep -FlMr "${req.body.snippet}" ${__dirname}/repos/module${req.body.module}/`;
+    app.post("/search", async (req, res)=>{
+        let snippet = req.body.snippet;
+        let command = `ag -lQ "${snippet}" ${__dirname}/repos/module${req.body.module}/`;
 
         exec(command, async (err, stdout, stderr)=>{
             let lines = stdout.split("\n");
