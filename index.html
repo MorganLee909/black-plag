@@ -282,7 +282,7 @@
                             repo.querySelector(".repoOwner").textContent = response[i].user;
                             repo.querySelector(".searchResultsRepo").textContent = response[i].repo;
                             repo.querySelector(".searchResultsLink").textContent = response[i].link;
-                            repo.href = response[i].link;
+                            repo.href = `/compare/${response[i]._id}`;
                             container.appendChild(repo);
                         }
 
