@@ -21,6 +21,21 @@
             color: var(--text);
         }
 
+        #notification{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 75px;
+            width: 500px;
+            position: fixed;
+            top: 35px;
+            left: calc(50% - 250px);
+            background: var(--button);
+            box-shadow: 0 0 5px white;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
         h2{
             font-size: 36px;
             text-align: center;
@@ -127,7 +142,7 @@
 <body>
     <button id="reset" onclick="reset()">Reset</button>
 
-    <div id="usage">
+    <div id="usage" class="section">
         <h2>What would you like to do?</h2>
 
         <button onclick="usageBut(this.parentElement, 'search')">Search for plagiarised repository</button>
@@ -135,7 +150,7 @@
         <button onclick="usageBut(this.parentElement, 'upload')">Upload plagiarised repository</button>
     </div>
 
-    <div id="modules" style="display:none">
+    <div id="modules" class="section" style="display:none">
         <h2>Which module?</h2>
 
         <div class="moduleContainer">
@@ -159,7 +174,7 @@
         </div>
     </div>
 
-    <form id="search" style="display:none" onsubmit="submitSearch()">
+    <form id="search" class="section" style="display:none" onsubmit="submitSearch()">
         <h2>Enter code snippet to search</h2>
 
         <p>Copy and paste a code snippet here that seems unique, such as a comment or a unique function.</p>
@@ -176,7 +191,7 @@
         <input type="submit" value="Submit"/>
     </form>
 
-    <form id="upload" style="display:none" onsubmit="submitUpload()">
+    <form id="upload" class="section" style="display:none" onsubmit="submitUpload()">
         <h2>Enter GitHub repository link to archive</h2>
 
         <p>Use web page link from the top level of the repo. For example: https://github.com/OWNER/REPO-NAME</p>
@@ -186,13 +201,10 @@
         <input type="submit" value="Upload"/>
     </form>
 
-    <div id="searchResults" style="display:none"></div>
+    <div id="searchResults" class="section" style="display:none"></div>
 
-    <div id="notification" style="display:none">
-        <h2></h2>
 
-        <button onclick="reset()">Home</button>
-    </div>
+    <p id="notification" style="display:none"></p>
 
     <template id="searchTemplate">
         <a class="searchTemplate" target="_blank">
@@ -210,9 +222,9 @@
             usage = "";
             module = 0;
 
-            let sections = document.querySelectorAll("body > *");
+            let sections = document.querySelectorAll(".section");
             sections[1].style.display = "flex";
-            for(let i = 2; i < sections.length; i++){
+            for(let i = 1; i < sections.length; i++){
                 sections[i].style.display = "none"
             }
 
@@ -224,19 +236,17 @@
             document.getElementById("repoLink").value = "";
             document.getElementById("snippet").value = "";
 
-            document.getElementById("reset").style.display = "block";
+            document.getElementById("usage").style.display = "flex";
         }
 
         let notify = (message)=>{
-            let elems = document.body.children;
-
-            for(let i = 0; i < elems.length; i++){
-                elems[i].style.display = "none";
-            }
-
             let notification = document.getElementById("notification");
-            notification.children[0].textContent = message;
+            notification.textContent = message;
             notification.style.display = "flex";
+
+            setTimeout(()=>{
+                notification.style.display = "none";
+            }, 2500);
         }
 
         let usageBut = (elem, type)=>{
@@ -291,7 +301,7 @@
                     }
                 })
                 .catch((err)=>{
-                    notify("Something went wrong. Please notify me (lmorgan@instructors.2u.com)");
+                    notify("ERROR");
                 });
         }
 
@@ -315,10 +325,11 @@
                         notify(response);
                     }else{
                         notify("Repo has been uploaded to server");
+                        reset();
                     }
                 })
                 .catch((err)=>{
-                    notify("Something went wrong. Please notify me (lmorgan@instructors.2u.com)");
+                    notify("ERROR");
                 });
         }
     </script>

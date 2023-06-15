@@ -20,7 +20,11 @@ let RepoSchema = new mongoose.Schema({
     notes: {
         type: String,
         required: false
+    },
+    module: {
+        type: Number,
+        required: true
     }
-})
+});
 
 module.exports = mongoose.model("repo", RepoSchema);

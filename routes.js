@@ -19,7 +19,7 @@ module.exports = (app)=>{
             let link = req.body.url.trim();
             link = link.replace(".git", "");
 
-            let repo = await Repo.findOne({link: link});
+            let repo = await Repo.findOne({link: link, module: parseInt(req.body.module)});
             if(repo !== null) return res.json("Repo already archived");
             
             let linkParts = link.split("/");
@@ -27,27 +27,32 @@ module.exports = (app)=>{
             let cloneCommand = `git clone ${link} ${__dirname}/repos/module${req.body.module}/${id}`;
 
             exec(cloneCommand, async (err, stdout, stderr)=>{
-                let newRepo = new Repo({
-                    link: link,
-                    user: linkParts[3],
-                    repo: linkParts[4],
-                    uuid: id,
-                    notes: req.body.notes ? req.body.notes : ""
-                });
+                if(err){
+                    res.json("ERROR: unable to upload repository");
+                }else{
+                    let newRepo = new Repo({
+                        link: link,
+                        user: linkParts[3],
+                        repo: linkParts[4],
+                        uuid: id,
+                        notes: req.body.notes ? req.body.notes : "",
+                        module: parseInt(req.body.module)
+                    });
 
-                let rmOptions = {
-                    recursive: true,
-                    force: true
-                };
+                    let rmOptions = {
+                        recursive: true,
+                        force: true
+                    };
 
-                fs.rm(`${__dirname}/repos/module${req.body.module}/${id}/node_modules/`, rmOptions, (err)=>{});
-                fs.rm(`${__dirname}/repos/module${req.body.module}/${id}/.git/`, rmOptions, (err)=>{console.error(err)});
-                fs.rm(`${__dirname}/repos/module${req.body.module}/${id}/package-lock.json`, (err)=>{});
-                fs.rm(`${__dirname}/repos/module${req.body.module}/${id}/.gitignore`, (err)=>{});
-                
-                await newRepo.save();
+                    fs.rm(`${__dirname}/repos/module${req.body.module}/${id}/node_modules/`, rmOptions, (err)=>{});
+                    fs.rm(`${__dirname}/repos/module${req.body.module}/${id}/.git/`, rmOptions, (err)=>{console.error(err)});
+                    fs.rm(`${__dirname}/repos/module${req.body.module}/${id}/package-lock.json`, (err)=>{});
+                    fs.rm(`${__dirname}/repos/module${req.body.module}/${id}/.gitignore`, (err)=>{});
+                    
+                    await newRepo.save();
 
-                res.json(newRepo);
+                    res.json(newRepo);
+                }
             });
         }catch(e){
             console.error(e);
