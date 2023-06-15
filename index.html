@@ -21,6 +21,21 @@
             color: var(--text);
         }
 
+        #notification{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 75px;
+            width: 500px;
+            position: fixed;
+            top: 35px;
+            left: calc(50% - 250px);
+            background: var(--button);
+            box-shadow: 0 0 5px white;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
         h2{
             font-size: 36px;
             text-align: center;
@@ -194,6 +209,8 @@
         <button onclick="reset()">Home</button>
     </div>
 
+    <p id="notification" style="display:none"></p>
+
     <template id="searchTemplate">
         <a class="searchTemplate" target="_blank">
             <h3 class="repoOwner"></h3>
@@ -228,15 +245,13 @@
         }
 
         let notify = (message)=>{
-            let elems = document.body.children;
-
-            for(let i = 0; i < elems.length; i++){
-                elems[i].style.display = "none";
-            }
-
             let notification = document.getElementById("notification");
-            notification.children[0].textContent = message;
+            notification.textContent = message;
             notification.style.display = "flex";
+
+            setTimeout(()=>{
+                notification.style.display = "none";
+            }, 2500);
         }
 
         let usageBut = (elem, type)=>{
@@ -315,6 +330,7 @@
                         notify(response);
                     }else{
                         notify("Repo has been uploaded to server");
+                        reset();
                     }
                 })
                 .catch((err)=>{
