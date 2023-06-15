@@ -32,7 +32,8 @@ module.exports = (app)=>{
                     user: linkParts[3],
                     repo: linkParts[4],
                     uuid: id,
-                    notes: req.body.notes ? req.body.notes : ""
+                    notes: req.body.notes ? req.body.notes : "",
+                    module: parseInt(req.body.module)
                 });
 
                 let rmOptions = {
