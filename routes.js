@@ -19,7 +19,7 @@ module.exports = (app)=>{
             let link = req.body.url.trim();
             link = link.replace(".git", "");
 
-            let repo = await Repo.findOne({link: link});
+            let repo = await Repo.findOne({link: link, module: parseInt(req.body.module)});
             if(repo !== null) return res.json("Repo already archived");
             
             let linkParts = link.split("/");
