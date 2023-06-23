@@ -1,5 +1,7 @@
 const Repo = require("./repo.js");
 
+const recurseDirectory = require("./helper.js");
+
 const {exec} = require("child_process");
 const uuid = require("crypto").randomUUID;
 const fs = require("fs");
@@ -39,15 +41,32 @@ module.exports = (app)=>{
                         module: parseInt(req.body.module)
                     });
 
-                    let rmOptions = {
-                        recursive: true,
-                        force: true
-                    };
+                    let removeFile = (filePath)=>{
+                        if(
+                            filePath.includes("node_modules") ||
+                            filePath.includes(".git") ||
+                            filePath.includes("package-lock.json") ||
+                            filePath.includes(".jpg") ||
+                            filePath.includes(".jpeg") ||
+                            filePath.includes(".webp") ||
+                            filePath.includes(".png") ||
+                            filePath.includes(".gif") ||
+                            filePath.includes(".svg") ||
+                            filePath.includes(".ico") ||
+                            filePath.includes(".webm") ||
+                            filePath.includes(".mkv") ||
+                            filePath.includes(".avi") ||
+                            filePath.includes(".mov") ||
+                            filePath.includes(".wmv") ||
+                            filePath.includes(".mp4") ||
+                            filePath.includes(".m4p") ||
+                            filePath.includes(".m4v") 
+                        ){
+                            fs.rm(filePath, {}, (err)=>{});
+                        }
+                    }
 
-                    fs.rm(`${__dirname}/repos/module${req.body.module}/${id}/node_modules/`, rmOptions, (err)=>{});
-                    fs.rm(`${__dirname}/repos/module${req.body.module}/${id}/.git/`, rmOptions, (err)=>{console.error(err)});
-                    fs.rm(`${__dirname}/repos/module${req.body.module}/${id}/package-lock.json`, (err)=>{});
-                    fs.rm(`${__dirname}/repos/module${req.body.module}/${id}/.gitignore`, (err)=>{});
+                    recurseDirectory(`${__dirname}/repos/module${req.body.module}/${id}`, removeFile);
                     
                     await newRepo.save();
 
