@@ -312,6 +312,10 @@
             module = num;
             document.getElementById("modules").style.display = "none";
             document.getElementById(usage).style.display = "flex";
+            switch(usage){
+                case "search": document.getElementById("snippet").focus(); break;
+                case "upload": document.getElementById("repoLink").focus(); break;
+            }
         }
 
         let submitSearch = ()=>{
@@ -383,6 +387,7 @@
                 .then((response)=>{
                     if(typeof(response) === "string"){
                         notify(response);
+                        reset();
                     }else{
                         notify("Repo has been uploaded to server");
                         reset();
@@ -392,7 +397,7 @@
                     notify("ERROR");
                 })
                 .finally(()=>{
-                    spinner.style.display = "flex";
+                    spinner.style.display = "none";
                 });
         }
     </script>
