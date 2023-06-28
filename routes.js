@@ -88,7 +88,9 @@ module.exports = (app)=>{
     response = [Repo]
     */
     app.post("/search", async (req, res)=>{
-        let snippet = req.body.snippet;
+        let snippet = req.body.snippet.replaceAll('\\"', '"');
+        snippet = snippet.replaceAll("\\'", "'");
+        snippet = snippet.replace(/["\\$`]/g, '\\$&');
         let command = `ag -lQ "${snippet}" ${__dirname}/repos/module${req.body.module}/`;
 
         exec(command, async (err, stdout, stderr)=>{
