@@ -19,6 +19,7 @@
             background: var(--background);
             min-height: 100vh;
             color: var(--text);
+            font-family: monospace;
         }
 
         #notification{
@@ -48,6 +49,7 @@
             font-size: 26px;
             padding: 10px;
             cursor: pointer;
+            font-family: monospace;
         }
 
         button:hover, input[type="submit"]:hover{
@@ -233,9 +235,11 @@
 
         <p>Notes:</p>
         <ul>
-            <li>It will try to find an exact match, so copy/paste exactly as the code is.</li>
-            <li>Currently the "/" character causes issues, so use code that doesn't have this. Working on fixing this.</li>
-            <li>This is not to be used as proof of plagiarism. Ensure to check the found repository. This is just a tool to help find potentially plagiarised repositories.</li>
+            <li>Server will search for <strong>EXACT</strong> match, so copy/paste the code</li>
+            <li>Search includes whitespace, which must match EXACTLY. So copy/paste and leave exactly as is. Let it be ugly in the text box. An added newline, or a removed space will not match and will result in a false negative.</li>
+            <li>You can search by copy/pasting entire files if you think student copy/pasted with no changes.</li>
+            <li>Will not search 'node_modules', 'package-lock.json', '.git', etc.</li>
+            <li>RESULTS DO NOT SERVE AS PROOF OF PLAGIARISM. This tool is only to help find plagiarised repositories, grader must verify themselves.</li>
         </ul>
 
         <textarea id="snippet" id="searchSnippet"></textarea>
