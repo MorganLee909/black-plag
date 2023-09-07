@@ -1,6 +1,9 @@
 const Repo = require("./repo.js");
 
-const {cloneRepo} = require("./helper.js");
+const {
+    cloneRepo,
+    createDocument
+} = require("./helper.js");
 
 const {exec} = require("child_process");
 const uuid = require("crypto").randomUUID;
@@ -88,8 +91,11 @@ module.exports = (app)=>{
     response = [Repo]
     */
     app.get("/search", async (req, res)=>{
+        const mod = parseInt(req.params.module);
+
         //Clone repository (remove unnecessary files, Create DB document)
-        cloneRepo(parseInt(req.params.module), req.params.repo);
+        const id = cloneRepo(mod, req.params.repo);
+        const repo = createDocument(mod, id, req.params.repo);
 
         //Compare with longest common subsequence
     });

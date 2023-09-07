@@ -17,14 +17,11 @@ let RepoSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    notes: {
-        type: String,
-        required: false
-    },
     module: {
         type: Number,
         required: true
-    }
+    },
+    jsFiles: [String]
 });
 
 module.exports = mongoose.model("repo", RepoSchema);

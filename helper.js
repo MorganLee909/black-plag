@@ -40,12 +40,18 @@ const removeFiles = (filePath)=>{
     ) fs.rm(filePath, {recursive: true, force: true}, (err)=>{});
 }
 
+const addJSToDocument = (filePath, repo)=>{
+    if(filePath.substring(filePath.length - 3) === ".js"){
+        repo.jsFiles.push(filePath.substring(filePath.indexOf(repo.uuid) + repo.uuid.length + 1));
+    }
+}
+
 const cloneRepo = async (mod, link)=>{
     link = link.trim();
     let archivedLink = link.replace(".git", "");
 
     let id = uuid();
-    let repo = await Repo.findOne({link: link, module: mod});
+    let repo = await Repo.findOne({link: archivedLink, module: mod});
     if(repo !== null) return false;
 
     let cloneCommand = `git clone ${link} ${__dirname}/repos/module${mod}/${id}`;
@@ -54,8 +60,30 @@ const cloneRepo = async (mod, link)=>{
     if(err) throw new Error("Unable to clone repository");
 
     recurseDirectory(`${__dirname}/repos/module${mod}/${id}`, removeFiles);
+
+    return id;
+}
+
+const createDocument = async (mod, id, repo)=>{
+    repo = repo.trim();
+    repo = repo.replace(".git", "");
+    let linkParts = repo.split("/");
+
+    let newRepo = new Repo({
+        link: repo,
+        user: linkParts[3],
+        repo: linkParts[4],
+        uuid: id,
+        module: mod,
+        jsFiles: []
+    });
+
+    recurseDirectory(`${__dirname}/repos/mod${mod}/${id}`, addJSToDocument, newRepo);
+
+    return await newRepo.save();
 }
 
 module.exports = {
-    cloneRepo
+    cloneRepo,
+    createDocument
 };
