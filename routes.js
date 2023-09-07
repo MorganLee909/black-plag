@@ -1,6 +1,6 @@
 const Repo = require("./repo.js");
 
-const recurseDirectory = require("./helper.js");
+const {cloneRepo} = require("./helper.js");
 
 const {exec} = require("child_process");
 const uuid = require("crypto").randomUUID;
@@ -81,31 +81,16 @@ module.exports = (app)=>{
 
     /*
     POST: search stored repos for matching string
-    req.body = {
-        snippet: String
+    req.params = {
         module: Number
+        repo: String (URL)
     }
     response = [Repo]
     */
-    app.post("/search", async (req, res)=>{
-        let snippet = req.body.snippet.replaceAll('\\"', '"');
-        snippet = snippet.replaceAll("\\'", "'");
-        snippet = snippet.replace(/["\\$`]/g, '\\$&');
-        let command = `ag -lQ "${snippet}" ${__dirname}/repos/module${req.body.module}/`;
+    app.get("/search", async (req, res)=>{
+        //Clone repository (remove unnecessary files, Create DB document)
+        cloneRepo(parseInt(req.params.module), req.params.repo);
 
-        exec(command, async (err, stdout, stderr)=>{
-            let lines = stdout.split("\n");
-            let ids = [];
-            let lineCount = !lines[lines.length-1] ? lines.length - 1 : lines.length;
-            for(let i = 0; i < lineCount; i++){
-                id = lines[i].split(__dirname).pop();
-                id = id.split("/");
-                id = id[3] === "" ? id[4] : id[3];
-                ids.push(id);
-            }
-
-            let repos = await Repo.find({uuid: ids})
-            res.json(repos);
-        });
+        //Compare with longest common subsequence
     });
 }
