@@ -21,7 +21,8 @@ let RepoSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    jsFiles: [String]
+    // jsFiles: [String],
+    tf: {}
 });
 
 module.exports = mongoose.model("repo", RepoSchema);

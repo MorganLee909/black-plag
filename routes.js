@@ -2,7 +2,8 @@ const Repo = require("./repo.js");
 
 const {
     cloneRepo,
-    createDocument
+    createDocument,
+    testFunc
 } = require("./helper.js");
 
 const {exec} = require("child_process");
@@ -90,13 +91,18 @@ module.exports = (app)=>{
     }
     response = [Repo]
     */
-    app.get("/search", async (req, res)=>{
-        const mod = parseInt(req.params.module);
+    app.get("/search*", async (req, res)=>{
+        console.time("all");
+        const mod = parseInt(req.query.module);
 
         //Clone repository (remove unnecessary files, Create DB document)
-        const id = cloneRepo(mod, req.params.repo);
-        const repo = createDocument(mod, id, req.params.repo);
+        const id = await cloneRepo(mod, req.query.repo);
+        const repo = await createDocument(mod, id, req.query.repo);
 
         //Compare with longest common subsequence
+        console.time("compare");
+        const result = await testFunc(repo, mod);
+        console.timeEnd("compare");
+        console.timeEnd("all");
     });
 }
