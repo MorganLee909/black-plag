@@ -3,7 +3,8 @@ const Repo = require("./repo.js");
 const {
     cloneRepo,
     createDocument,
-    calculateIdf
+    calculateIdf,
+    getPotentialPlagiarism
 } = require("./helper.js");
 
 const {exec} = require("child_process");
@@ -97,10 +98,16 @@ module.exports = (app)=>{
 
         //Clone repository (remove unnecessary files, Create DB document)
         const id = await cloneRepo(mod, req.query.repo);
-        const repo = await createDocument(mod, id, req.query.repo);
+        let repo = {};
+        if(id === false){
+            repo = await Repo.findOne({link: req.query.repo, module: mod});
+        }else{
+            repo = await createDocument(mod, id, req.query.repo);
+        }
 
         //Do things and stuff
         console.time("compare");
+        let result = getPotentialPlagiarism(mod, repo);
         global.idf[req.query.module] = await calculateIdf(mod);
         console.timeEnd("compare");
         console.timeEnd("all");

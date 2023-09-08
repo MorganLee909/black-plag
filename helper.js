@@ -75,6 +75,14 @@ const documentTermFrequency = (file, repo)=>{
     }
 }
 
+const cosineSimilarity = (testFile, compareFile)=>{
+    let sumOfATimesB //For each term, multiple them together, then add them all up
+    let sumOfASq //Square each term in test file, then sum them all up
+    let sumOfBSq //Squre each term in compareFile, then sum them all up
+
+    
+}
+
 const cloneRepo = async (mod, link)=>{
     link = link.trim();
     let archivedLink = link.replace(".git", "");
@@ -139,12 +147,26 @@ const calculateIdf = async (mod)=>{
     for(let i = 0; i < terms.length; i++){
         idf[terms[i]] = Math.log10(totalFiles / documentCountPerTerm[terms[i]]);
     }
-    
+
     return idf;
+}
+
+const getPotentialPlagiarism = async (mod, repo)=>{
+    let compareRepos = await Repo.find({module: mod});
+    
+    let testFiles = Object.keys(repo.tf);
+
+    for(let i = 0; i < compareRepos.length; i++){
+        let compareFiles = Object.keys(compareRepos.tf);
+        for(let j = 0; j < compareFiles.length; j++){
+
+        }
+    }
 }
 
 module.exports = {
     cloneRepo,
     createDocument,
-    calculateIdf
+    calculateIdf,
+    getPotentialPlagiarism
 };
