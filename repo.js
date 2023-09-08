@@ -21,7 +21,6 @@ let RepoSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    // jsFiles: [String],
     tf: {}
 });
 

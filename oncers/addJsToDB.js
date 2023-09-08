@@ -1,4 +1,4 @@
-const Repo = require("./repo.js");
+const Repo = require("../repo.js");
 const fs = require("fs");
 
 const mongoose = require("mongoose");

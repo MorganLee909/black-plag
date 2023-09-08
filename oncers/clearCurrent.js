@@ -1,5 +1,5 @@
 const fs = require("fs");
-const recurseDirectory = require("helper.js");
+const recurseDirectory = require("../helper.js");
 
 let removeFile = (filePath)=>{
     if(

@@ -3,7 +3,8 @@ const Repo = require("./repo.js");
 const {
     cloneRepo,
     createDocument,
-    testFunc
+    testFunc,
+    calculateIdf
 } = require("./helper.js");
 
 const {exec} = require("child_process");
@@ -99,9 +100,10 @@ module.exports = (app)=>{
         const id = await cloneRepo(mod, req.query.repo);
         const repo = await createDocument(mod, id, req.query.repo);
 
-        //Compare with longest common subsequence
+        //Do things and stuff
         console.time("compare");
-        const result = await testFunc(repo, mod);
+        calculateIdf();
+        // const result = await testFunc(repo, mod);
         console.timeEnd("compare");
         console.timeEnd("all");
     });
