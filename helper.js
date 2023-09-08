@@ -112,48 +112,39 @@ const createDocument = async (mod, id, repo)=>{
     return await newRepo.save();
 }
 
-const testFunc = async (repo, mod)=>{
-    return false;
-}
+const calculateIdf = async (mod)=>{
+    let repos = await Repo.find({module: mod});
 
-const calculateIdf = ()=>{
-    Repo.find({})
-        .then((repos)=>{
-            let documentCountPerTerm = {};
-            let totalFiles = 0;
-            for(let i = 0; i < repos.length; i++){
-                let files = Object.keys(repos[i].tf);
-                for(let j = 0; j < files.length; j++){
-                    if(!repos[i].tf[files[j]]) continue;
-                    totalFiles++;
+    let documentCountPerTerm = {};
+    let totalFiles = 0;
+    for(let i = 0; i < repos.length; i++){
+        let files = Object.keys(repos[i].tf);
+        for(let j = 0; j < files.length; j++){
+            if(!repos[i].tf[files[j]]) continue;
+            totalFiles++;
 
-                    let terms = Object.keys(repos[i].tf[files[j]]);
-                    for(let k = 0; k < terms.length; k++){
-                        if(!documentCountPerTerm[terms[k]]){
-                            documentCountPerTerm[terms[k]] = 1;
-                        }else{
-                            documentCountPerTerm[terms[k]]++;
-                        }
-                    }
+            let terms = Object.keys(repos[i].tf[files[j]]);
+            for(let k = 0; k < terms.length; k++){
+                if(!documentCountPerTerm[terms[k]]){
+                    documentCountPerTerm[terms[k]] = 1;
+                }else{
+                    documentCountPerTerm[terms[k]]++;
                 }
             }
+        }
+    }
 
-            let terms = Object.keys(documentCountPerTerm);
-            let idf = {};
-            for(let i = 0; i < terms.length; i++){
-                idf[terms[i]] = Math.log10(totalFiles / documentCountPerTerm[terms[i]]);
-            }
-            // fs.writeFileSync("idf.json", JSON.stringify(idf));
-            // console.log(idf);
-        })
-        .catch((err)=>{
-            console.error(err);
-        });
+    let terms = Object.keys(documentCountPerTerm);
+    let idf = {};
+    for(let i = 0; i < terms.length; i++){
+        idf[terms[i]] = Math.log10(totalFiles / documentCountPerTerm[terms[i]]);
+    }
+    
+    return idf;
 }
 
 module.exports = {
     cloneRepo,
     createDocument,
-    testFunc,
     calculateIdf
 };

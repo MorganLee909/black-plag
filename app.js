@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const compression = require("compression");
 const https = require("https");
 const fs = require("fs");
+const { calculateIdf } = require("./helper.js");
 
 const app = express();
 
@@ -32,6 +33,12 @@ if(process.env.NODE_ENV === "production"){
 }
 
 mongoose.connect(mongoString, mongooseOptions);
+
+//Calculate IDF for all corpuses
+global.idf = {};
+for(let i = 1; i <= 21; i++){
+    global.idf[String(i).padStart(2, "0")] = calculateIdf(i);
+}
 
 app.use(compression());
 app.use(express.json());

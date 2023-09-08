@@ -3,7 +3,6 @@ const Repo = require("./repo.js");
 const {
     cloneRepo,
     createDocument,
-    testFunc,
     calculateIdf
 } = require("./helper.js");
 
@@ -102,8 +101,7 @@ module.exports = (app)=>{
 
         //Do things and stuff
         console.time("compare");
-        calculateIdf();
-        // const result = await testFunc(repo, mod);
+        global.idf[req.query.module] = await calculateIdf(mod);
         console.timeEnd("compare");
         console.timeEnd("all");
     });
