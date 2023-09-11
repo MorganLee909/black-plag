@@ -75,12 +75,62 @@ const documentTermFrequency = (file, repo)=>{
     }
 }
 
-const cosineSimilarity = (testFile, compareFile)=>{
-    let sumOfATimesB //For each term, multiple them together, then add them all up
-    let sumOfASq //Square each term in test file, then sum them all up
-    let sumOfBSq //Squre each term in compareFile, then sum them all up
+const cosineSimilarity = (testFile, compareFile, mod)=>{
+    let sumOfATimesB  = 0;//For each term, multiple them together, then add them all up
+    let sumOfASq = 0; //Square each term in test file, then sum them all up
+    let sumOfBSq = 0; //Squre each term in compareFile, then sum them all up
 
-    
+    let allTerms = new Set(Object.keys(testFile));
+    let compareTerms = Object.keys(compareFile);
+    for(let i = 0; i < compareTerms.length; i++){
+        allTerms.add(compareTerms[i]);
+    }
+
+    const modString = String(mod).padStart(2, "0");
+    allTerms.forEach((elem)=>{
+        const idfMultiplier = global.idf[modString][elem] ? global.idf[modString][elem] : 0;
+        const testValue = testFile[elem] ? testFile[elem].augmented * idfMultiplier : 0;
+        const compareValue = compareFile[elem] ? compareFile[elem].augmented * idfMultiplier : 0;
+
+        sumOfATimesB += testValue * compareValue;
+        sumOfASq += Math.pow(testValue, 2);
+        sumOfBSq += Math.pow(compareValue, 2);
+    });
+
+    if(sumOfASq === 0 || sumOfBSq === 0) return 0;
+    let cosSim = sumOfATimesB / (Math.sqrt(sumOfASq) * Math.sqrt(sumOfBSq));
+
+    return cosSim;
+}
+
+const buildCSResults = (arr, cs, testRepo, testFile, compareRepo, compareFile)=>{
+    if(arr.length < 5){
+        arr.push({
+            cs: cs,
+            studentFile: testFile,
+            compareRepo: compareRepo,
+            compareFile: compareFile
+        });
+        return;
+    }
+
+    let min = arr[0].cs;
+    let mindex = 0;
+    for(let i = 1; i < arr.length; i++){
+        if(arr[i].cs < min){
+            min = arr[i].cs;
+            mindex = i;
+        }
+    }
+
+    if(cs > min){
+        arr[mindex] = {
+            cs: cs,
+            studentFile: testFile,
+            compareRepo: compareRepo,
+            compareFile: compareFile
+        }
+    }
 }
 
 const cloneRepo = async (mod, link)=>{
@@ -101,7 +151,7 @@ const cloneRepo = async (mod, link)=>{
     return id;
 }
 
-const createDocument = async (mod, id, repo)=>{
+const createDocument = (mod, id, repo)=>{
     repo = repo.trim();
     repo = repo.replace(".git", "");
     let linkParts = repo.split("/");
@@ -117,7 +167,7 @@ const createDocument = async (mod, id, repo)=>{
 
     recurseDirectory(`${__dirname}/repos/module${mod}/${id}`, documentTermFrequency, newRepo);
 
-    return await newRepo.save();
+    return newRepo;
 }
 
 const calculateIdf = async (mod)=>{
@@ -156,12 +206,18 @@ const getPotentialPlagiarism = async (mod, repo)=>{
     
     let testFiles = Object.keys(repo.tf);
 
+    let results = [];
     for(let i = 0; i < compareRepos.length; i++){
-        let compareFiles = Object.keys(compareRepos.tf);
+        let compareFiles = Object.keys(compareRepos[i].tf);
         for(let j = 0; j < compareFiles.length; j++){
-
+            for(let k = 0; k < testFiles.length; k++){
+                let cs = cosineSimilarity(repo.tf[testFiles[k]], compareRepos[i].tf[compareFiles[j]], mod);
+                buildCSResults(results, cs, repo, testFiles[k], compareRepos[i], compareFiles[j]);
+            }
         }
     }
+
+    return results;
 }
 
 module.exports = {

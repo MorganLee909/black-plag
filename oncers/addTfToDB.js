@@ -1,3 +1,7 @@
+/*
+IMPORTANT: If replacing TF on repo documents, make sure to update 'tf' property to empty object
+on all documents first
+*/
 const Repo = require("../repo.js");
 
 const fs = require("fs");

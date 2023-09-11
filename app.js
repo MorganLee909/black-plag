@@ -35,17 +35,19 @@ if(process.env.NODE_ENV === "production"){
 mongoose.connect(mongoString, mongooseOptions);
 
 //Calculate IDF for all corpuses
-global.idf = {};
-for(let i = 1; i <= 21; i++){
-    global.idf[String(i).padStart(2, "0")] = calculateIdf(i);
+const getIdf = async ()=>{
+    global.idf = {};
+    for(let i = 1; i <= 21; i++){
+        global.idf[String(i).padStart(2, "0")] = await calculateIdf(i);
+    }
 }
+getIdf();
 
 app.use(compression());
 app.use(express.json());
 
 require("./routes.js")(app);
 app.get("/", (req, res)=>{res.sendFile(`${__dirname}/index.html`)});
-
 if(process.env.NODE_ENV === "production"){
     httpsServer.listen(process.env.HTTPS_PORT);
 }
