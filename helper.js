@@ -42,9 +42,6 @@ const removeFiles = (filePath)=>{
 }
 
 const documentTermFrequency = (file, repo)=>{
-    let shortFile = file.substring(file.indexOf(repo.uuid) + repo.uuid.length + 1);
-    repo.tf[shortFile] = {};
-
     if(file.substring(file.length - 3) === ".js"){
         let terms = fs.readFileSync(file, {encoding: "utf8"});
         terms = terms.replace(/\(|\)/g, " ");
@@ -53,24 +50,21 @@ const documentTermFrequency = (file, repo)=>{
 
         let max = 1;
         for(let i = 0; i < terms.length; i++){
-            if(terms[i] === "" || terms[i].length === 1){
-                terms.splice(i, 1);
-                i--;
-                continue;
-            }
+            if(terms[i].length < 3) continue;
 
-            if(repo.tf[shortFile][terms[i]]){
-                repo.tf[shortFile][terms[i]].raw++;
-                if(repo.tf[shortFile][terms[i]].raw > max) max = repo.tf[shortFile][terms[i]].raw;
+            if(repo.tf[terms[i]]){
+                repo.tf[terms[i]].raw++;
+                if(repo.tf[terms[i]].raw > max) max = repo.tf[terms[i]].raw;
             }else{
-                repo.tf[shortFile][terms[i]] = {
+                repo.tf[terms[i]] = {
                     raw: 1
                 };
             }
         }
 
-        for(let i = 0; i < terms.length; i++){
-            repo.tf[shortFile][terms[i]].augmented = repo.tf[shortFile][terms[i]].raw / max;
+        let tfTerms = Object.keys(repo.tf);
+        for(let i = 0; i < tfTerms.length; i++){
+            repo.tf[tfTerms[i]].augmented = repo.tf[tfTerms[i]].raw / max;
         }
     }
 }
