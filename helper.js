@@ -2,6 +2,7 @@ const fs = require("fs");
 const uuid = require("crypto").randomUUID;
 const util = require("util");
 const exec = util.promisify(require("child_process").exec);
+const tokenize = require("js-tokens");
 // const lcs = require("node-lcs");
 
 const Repo = require("./repo.js");
@@ -44,9 +45,7 @@ const removeFiles = (filePath)=>{
 const documentTermFrequency = (file, repo)=>{
     if(file.substring(file.length - 3) === ".js"){
         let terms = fs.readFileSync(file, {encoding: "utf8"});
-        terms = terms.replace(/\(|\)/g, " ");
-        terms = terms.replace(/\n/g, "");
-        terms = terms.split(" ");
+        terms = Array.from(tokenize(terms), t=>t.value);
 
         let max = 1;
         for(let i = 0; i < terms.length; i++){
