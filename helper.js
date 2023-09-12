@@ -69,22 +69,22 @@ const documentTermFrequency = (file, repo)=>{
     }
 }
 
-const cosineSimilarity = (testFile, compareFile, mod)=>{
+const cosineSimilarity = (testTerms, compareTerms, mod)=>{
     let sumOfATimesB  = 0;//For each term, multiple them together, then add them all up
     let sumOfASq = 0; //Square each term in test file, then sum them all up
     let sumOfBSq = 0; //Squre each term in compareFile, then sum them all up
 
-    let allTerms = new Set(Object.keys(testFile));
-    let compareTerms = Object.keys(compareFile);
-    for(let i = 0; i < compareTerms.length; i++){
-        allTerms.add(compareTerms[i]);
+    let allTerms = new Set(Object.keys(testTerms));
+    let compareTermKeys = Object.keys(compareTerms);
+    for(let i = 0; i < compareTermKeys.length; i++){
+        allTerms.add(compareTermKeys[i]);
     }
 
     const modString = String(mod).padStart(2, "0");
     allTerms.forEach((elem)=>{
         const idfMultiplier = global.idf[modString][elem] ? global.idf[modString][elem] : 0;
-        const testValue = testFile[elem] ? testFile[elem].augmented * idfMultiplier : 0;
-        const compareValue = compareFile[elem] ? compareFile[elem].augmented * idfMultiplier : 0;
+        const testValue = testTerms[elem] ? testTerms[elem].augmented * idfMultiplier : 0;
+        const compareValue = compareTerms[elem] ? compareTerms[elem].augmented * idfMultiplier : 0;
 
         sumOfATimesB += testValue * compareValue;
         sumOfASq += Math.pow(testValue, 2);
@@ -97,13 +97,12 @@ const cosineSimilarity = (testFile, compareFile, mod)=>{
     return cosSim;
 }
 
-const buildCSResults = (arr, cs, testRepo, testFile, compareRepo, compareFile)=>{
+const buildCSResults = (arr, cs, testRepo, compareRepo)=>{
     if(arr.length < 5){
         arr.push({
             cs: cs,
-            studentFile: testFile,
+            studentRepo: testRepo,
             compareRepo: compareRepo,
-            compareFile: compareFile
         });
         return;
     }
@@ -120,9 +119,8 @@ const buildCSResults = (arr, cs, testRepo, testFile, compareRepo, compareFile)=>
     if(cs > min){
         arr[mindex] = {
             cs: cs,
-            studentFile: testFile,
+            studentRepo: testRepo,
             compareRepo: compareRepo,
-            compareFile: compareFile
         }
     }
 }
@@ -167,29 +165,22 @@ const createDocument = (mod, id, repo)=>{
 const calculateIdf = async (mod)=>{
     let repos = await Repo.find({module: mod});
 
-    let documentCountPerTerm = {};
-    let totalFiles = 0;
+    let repoCountPerTerm = {};
     for(let i = 0; i < repos.length; i++){
-        let files = Object.keys(repos[i].tf);
-        for(let j = 0; j < files.length; j++){
-            if(!repos[i].tf[files[j]]) continue;
-            totalFiles++;
-
-            let terms = Object.keys(repos[i].tf[files[j]]);
-            for(let k = 0; k < terms.length; k++){
-                if(!documentCountPerTerm[terms[k]]){
-                    documentCountPerTerm[terms[k]] = 1;
-                }else{
-                    documentCountPerTerm[terms[k]]++;
-                }
+        let terms = Object.keys(repos[i].tf);
+        for(let j = 0; j < terms.length; j++){
+            if(!repoCountPerTerm[terms[j]]){
+                repoCountPerTerm[terms[j]] = 1;
+            }else{
+                repoCountPerTerm[terms[j]]++;
             }
         }
     }
 
-    let terms = Object.keys(documentCountPerTerm);
+    let terms = Object.keys(repoCountPerTerm);
     let idf = {};
     for(let i = 0; i < terms.length; i++){
-        idf[terms[i]] = Math.log10(totalFiles / documentCountPerTerm[terms[i]]);
+        idf[terms[i]] = Math.log10(repos.length / repoCountPerTerm[terms[i]]);
     }
 
     return idf;
@@ -198,17 +189,10 @@ const calculateIdf = async (mod)=>{
 const getPotentialPlagiarism = async (mod, repo)=>{
     let compareRepos = await Repo.find({module: mod});
     
-    let testFiles = Object.keys(repo.tf);
-
     let results = [];
     for(let i = 0; i < compareRepos.length; i++){
-        let compareFiles = Object.keys(compareRepos[i].tf);
-        for(let j = 0; j < compareFiles.length; j++){
-            for(let k = 0; k < testFiles.length; k++){
-                let cs = cosineSimilarity(repo.tf[testFiles[k]], compareRepos[i].tf[compareFiles[j]], mod);
-                buildCSResults(results, cs, repo, testFiles[k], compareRepos[i], compareFiles[j]);
-            }
-        }
+        let cs = cosineSimilarity(repo.tf, compareRepos[i].tf, mod);
+        buildCSResults(results, cs, repo, compareRepos[i]);
     }
 
     return results;
