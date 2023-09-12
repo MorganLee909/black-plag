@@ -197,9 +197,21 @@ const getPotentialPlagiarism = async (mod, repo)=>{
     return results;
 }
 
+const formatResult = (data)=>{
+    for(let i = 0; i < data.length; i++){
+        data[i].studentRepo.uuid = undefined;
+        data[i].studentRepo.tf = undefined;
+        data[i].compareRepo.uuid = undefined;
+        data[i].compareRepo.tf = undefined;
+    }
+
+    return data;
+}
+
 module.exports = {
     cloneRepo,
     createDocument,
     calculateIdf,
-    getPotentialPlagiarism
+    getPotentialPlagiarism,
+    formatResult
 };

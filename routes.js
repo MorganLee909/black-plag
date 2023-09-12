@@ -4,14 +4,19 @@ const {
     cloneRepo,
     createDocument,
     calculateIdf,
-    getPotentialPlagiarism
+    getPotentialPlagiarism,
+    formatResult
 } = require("./helper.js");
 
-const {exec} = require("child_process");
-const uuid = require("crypto").randomUUID;
-const fs = require("fs");
-
 module.exports = (app)=>{
+    /*
+    GET: Landing page
+    render index.html
+    */
+    app.get("/", async (req, res)=>{
+        res.sendFile(`${__dirname}/public/index.html`);
+    });
+
     /*
     POST: search stored repos for matching string
     req.params = {
@@ -21,7 +26,6 @@ module.exports = (app)=>{
     response = [Repo]
     */
     app.get("/search*", async (req, res)=>{
-        console.time("all");
         const mod = parseInt(req.query.module);
 
         //Clone repository (remove unnecessary files, Create DB document)
@@ -35,14 +39,12 @@ module.exports = (app)=>{
         }
 
         //Do things and stuff
-        console.time("compare");
         let result = await getPotentialPlagiarism(mod, repo);
-        console.log(result);
-        console.timeEnd("compare");
+        result = formatResult(result);
+        res.json(result);
         if(id !== false){
             await repo.save();
             global.idf[req.query.module] = await calculateIdf(mod);
         }
-        console.timeEnd("all");
     });
 }
