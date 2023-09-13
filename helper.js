@@ -198,8 +198,12 @@ const getPotentialPlagiarism = async (mod, repo)=>{
 }
 
 const formatResult = (data)=>{
-    data.studentRepo.uuid = undefined;
-    data.studentRepo.tf = undefined;
+    data.studentRepo = {
+        link: data.studentRepo.link,
+        user: data.studentRepo.user,
+        repo: data.studentRepo.repo,
+        module: data.studentRepo.module
+    }
 
     for(let i = 0; i < data.results.length; i++){
         data.results[i].compareRepo.uuid = undefined;
