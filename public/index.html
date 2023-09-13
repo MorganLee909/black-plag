@@ -118,6 +118,7 @@
             })
                 .then(r=>r.json())
                 .then((response)=>{
+                    console.log(response);
                     document.getElementById("homePage").style.display = "none";
                     displayResults(response);
                 })
