@@ -3,7 +3,6 @@ const uuid = require("crypto").randomUUID;
 const util = require("util");
 const exec = util.promisify(require("child_process").exec);
 const tokenize = require("js-tokens");
-// const lcs = require("node-lcs");
 
 const Repo = require("./repo.js");
 

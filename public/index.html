@@ -36,6 +36,11 @@
             margin: 15px;
             color: black;
             padding: 35px;
+            text-decoration: none;
+        }
+
+        .alertText{
+            color: rgb(160, 0, 0);
         }
     </style>
 </head>
@@ -73,31 +78,31 @@
         <div id="plagiarismResults"></div>
 
         <template id="plagiarismResult">
-            <div class="plagiarismResult">
+            <a class="plagiarismResult" target="_blank">
                 <div>
                     <p class="resultUser"></p>
                     <p class="resultRepo"></p>
                 </div>
 
                 <p class="resultPercent"></p>
-
-                <button class="resultButton"></button>
-            </div>
+            </a>
         </template>
     </div>
 
     <script>
         const displayResults = (data)=>{
-            data.sort((a, b) => a.cs > b.cs ? -1 : 1);
+            data.results.sort((a, b) => a.cs > b.cs ? -1 : 1);
             document.getElementById("resultsPage").style.display = "flex";
             let container = document.getElementById("plagiarismResults");
             let template = document.getElementById("plagiarismResult").content.children[0];
 
-            for(let i = 0; i < data.length; i++){
+            for(let i = 0; i < data.results.length; i++){
                 let result = template.cloneNode(true);
-                result.querySelector(".resultUser").textContent = `User: ${data[i].compareRepo.user}`;
-                result.querySelector(".resultRepo").textContent = `Repo: ${data[i].compareRepo.repo}`;
-                result.querySelector(".resultPercent").textContent = `${Math.round(data[i].cs * 100)}% repository match`;
+                result.href = data.results[i].compareRepo.link;
+                result.querySelector(".resultUser").textContent = `User: ${data.results[i].compareRepo.user}`;
+                result.querySelector(".resultRepo").textContent = `Repo: ${data.results[i].compareRepo.repo}`;
+                result.querySelector(".resultPercent").textContent = `${Math.round(data.results[i].cs * 100)}% repository match`;
+                if(data.results[i].cs >= 0.9) result.classList.add("alertText");
                 container.appendChild(result);
             }
         }
@@ -118,7 +123,6 @@
             })
                 .then(r=>r.json())
                 .then((response)=>{
-                    console.log(response);
                     document.getElementById("homePage").style.display = "none";
                     displayResults(response);
                 })
