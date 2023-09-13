@@ -49,20 +49,13 @@ const documentTermFrequency = (file, repo)=>{
 
 Repo.find({})
     .then((repos)=>{
-        let promises = [];
         for(let i = 0; i < repos.length; i++){
             let repoPath = `${__dirname}/../repos/module${repos[i].module}/${repos[i].uuid}`;
             recurseDirectory(repoPath, documentTermFrequency, repos[i]);
 
             repos[i].markModified("tf");
-            promises.push(repos[i].save());
+            repos[i].save().then((repo)=>{console.log(i)});
         }
-
-        return Promise.all(promises);
-    })
-    .then((result)=>{
-        console.log("done");
-        mongoose.disconnect();
     })
     .catch((err)=>{
         console.error(err);
