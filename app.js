@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const compression = require("compression");
 const https = require("https");
 const fs = require("fs");
+const { calculateIdf } = require("./helper.js");
 
 const app = express();
 
@@ -33,13 +34,25 @@ if(process.env.NODE_ENV === "production"){
 
 mongoose.connect(mongoString, mongooseOptions);
 
+//Calculate IDF for all corpuses
+const getIdf = async ()=>{
+    global.idf = {};
+    for(let i = 1; i <= 21; i++){
+        global.idf[String(i).padStart(2, "0")] = await calculateIdf(i);
+    }
+}
+getIdf();
+
 app.use(compression());
 app.use(express.json());
 
 require("./routes.js")(app);
 app.get("/", (req, res)=>{res.sendFile(`${__dirname}/index.html`)});
+<<<<<<< HEAD
 app.get("/compare/:repo", (req, res)=>{res.sendFile(`${__dirname}/compare.html`)});
 
+=======
+>>>>>>> development
 if(process.env.NODE_ENV === "production"){
     httpsServer.listen(process.env.HTTPS_PORT);
 }

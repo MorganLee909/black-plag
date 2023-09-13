@@ -1,109 +1,50 @@
 const Repo = require("./repo.js");
 
-const recurseDirectory = require("./helper.js");
-
-const {exec} = require("child_process");
-const uuid = require("crypto").randomUUID;
-const fs = require("fs");
+const {
+    cloneRepo,
+    createDocument,
+    calculateIdf,
+    getPotentialPlagiarism,
+    formatResult
+} = require("./helper.js");
 
 module.exports = (app)=>{
     /*
-    POST: upload GitHub repo from entered url
-    req.body = {
-        url: Repo link
-        module: Number
-        notes: String
-    }
-    response = Repo
+    GET: Landing page
+    render index.html
     */
-    app.post("/upload", async (req, res)=>{
-        try{
-            let link = req.body.url.trim();
-            link = link.replace(".git", "");
-
-            let repo = await Repo.findOne({link: link, module: parseInt(req.body.module)});
-            if(repo !== null) return res.json("Repo already archived");
-            
-            let linkParts = link.split("/");
-            let id = uuid();
-            let cloneCommand = `git clone ${link} ${__dirname}/repos/module${req.body.module}/${id}`;
-
-            exec(cloneCommand, async (err, stdout, stderr)=>{
-                if(err){
-                    res.json("ERROR: unable to upload repository");
-                }else{
-                    let newRepo = new Repo({
-                        link: link,
-                        user: linkParts[3],
-                        repo: linkParts[4],
-                        uuid: id,
-                        notes: req.body.notes ? req.body.notes : "",
-                        module: parseInt(req.body.module)
-                    });
-
-                    let removeFile = (filePath)=>{
-                        if(
-                            filePath.includes("node_modules") ||
-                            filePath.includes(".git") ||
-                            filePath.includes("package-lock.json") ||
-                            filePath.includes(".jpg") ||
-                            filePath.includes(".jpeg") ||
-                            filePath.includes(".webp") ||
-                            filePath.includes(".png") ||
-                            filePath.includes(".gif") ||
-                            filePath.includes(".svg") ||
-                            filePath.includes(".ico") ||
-                            filePath.includes(".webm") ||
-                            filePath.includes(".mkv") ||
-                            filePath.includes(".avi") ||
-                            filePath.includes(".mov") ||
-                            filePath.includes(".wmv") ||
-                            filePath.includes(".mp4") ||
-                            filePath.includes(".m4p") ||
-                            filePath.includes(".m4v") 
-                        ){
-                            fs.rm(filePath, {}, (err)=>{});
-                        }
-                    }
-
-                    recurseDirectory(`${__dirname}/repos/module${req.body.module}/${id}`, removeFile);
-                    
-                    await newRepo.save();
-
-                    res.json(newRepo);
-                }
-            });
-        }catch(e){
-            console.error(e);
-            res.json("Something went wrong");
-        }
+    app.get("/", async (req, res)=>{
+        res.sendFile(`${__dirname}/public/index.html`);
     });
 
     /*
     POST: search stored repos for matching string
-    req.body = {
-        snippet: String
+    req.params = {
         module: Number
+        repo: String (URL)
     }
     response = [Repo]
     */
-    app.post("/search", async (req, res)=>{
-        let snippet = req.body.snippet;
-        let command = `ag -lQ "${snippet}" ${__dirname}/repos/module${req.body.module}/`;
+    app.get("/search*", async (req, res)=>{
+        const mod = parseInt(req.query.module);
 
-        exec(command, async (err, stdout, stderr)=>{
-            let lines = stdout.split("\n");
-            let ids = [];
-            let lineCount = !lines[lines.length-1] ? lines.length - 1 : lines.length;
-            for(let i = 0; i < lineCount; i++){
-                id = lines[i].split(__dirname).pop();
-                id = id.split("/");
-                id = id[3] === "" ? id[4] : id[3];
-                ids.push(id);
-            }
+        //Clone repository (remove unnecessary files, Create DB document)
+        const id = await cloneRepo(mod, req.query.repo);
+        let repo = {};
+        if(id === false){
+            let url = req.query.repo.replace(".git", "");
+            repo = await Repo.findOne({link: url, module: mod});
+        }else{
+            repo = createDocument(mod, id, req.query.repo);
+        }
 
-            let repos = await Repo.find({uuid: ids})
-            res.json(repos);
-        });
+        //Do things and stuff
+        let result = await getPotentialPlagiarism(mod, repo);
+        result = formatResult(result);
+        res.json(result);
+        if(id !== false){
+            await repo.save();
+            global.idf[req.query.module] = await calculateIdf(mod);
+        }
     });
 }

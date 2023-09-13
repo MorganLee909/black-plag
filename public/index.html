@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Black Plag</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+
+        body{
+            height: 100vh;
+            width: 100vw;
+            background: #12130F;
+            color: white;
+        }
+
+        .page{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            width: 100%;
+        }
+
+        input, select{
+            font-size: 22px;
+            margin: 15px;
+        }
+
+        .plagiarismResult{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: darkgray;
+            height: 100px;
+            width: 750px;
+            margin: 15px;
+            color: black;
+            padding: 35px;
+            text-decoration: none;
+        }
+
+        .alertText{
+            color: rgb(160, 0, 0);
+        }
+    </style>
+</head>
+<body>
+    <div id="homePage" class="page">
+        <form id="homeForm">
+            <select id="homeModuleSelect">
+                <option value="none" default>Choose Module</option>
+                <option value="01">1</option>
+                <option value="02">2</option>
+                <option value="03">3</option>
+                <option value="04">4</option>
+                <option value="05">5</option>
+                <option value="06">6</option>
+                <option value="09">9</option>
+                <option value="10">10</option>
+                <option value="11">11</option>
+                <option value="12">12</option>
+                <option value="13">13</option>
+                <option value="14">14</option>
+                <option value="17">17</option>
+                <option value="18">18</option>
+                <option value="19">19</option>
+                <option value="20">20</option>
+                <option value="21">21</option>
+            </select>
+            
+            <input id="homeGithubLink" type="url" placeholder="GitHub Link"/>
+
+            <input type="submit" value="Submit"/>
+        </form>
+    </div>
+
+    <div id="resultsPage" class="page" style="display:none">
+        <div id="plagiarismResults"></div>
+
+        <template id="plagiarismResult">
+            <a class="plagiarismResult" target="_blank">
+                <div>
+                    <p class="resultUser"></p>
+                    <p class="resultRepo"></p>
+                </div>
+
+                <p class="resultPercent"></p>
+            </a>
+        </template>
+    </div>
+
+    <script>
+        const displayResults = (data)=>{
+            data.results.sort((a, b) => a.cs > b.cs ? -1 : 1);
+            document.getElementById("resultsPage").style.display = "flex";
+            let container = document.getElementById("plagiarismResults");
+            let template = document.getElementById("plagiarismResult").content.children[0];
+
+            for(let i = 0; i < data.results.length; i++){
+                let result = template.cloneNode(true);
+                result.href = data.results[i].compareRepo.link;
+                result.querySelector(".resultUser").textContent = `User: ${data.results[i].compareRepo.user}`;
+                result.querySelector(".resultRepo").textContent = `Repo: ${data.results[i].compareRepo.repo}`;
+                result.querySelector(".resultPercent").textContent = `${Math.round(data.results[i].cs * 100)}% repository match`;
+                if(data.results[i].cs >= 0.9) result.classList.add("alertText");
+                container.appendChild(result);
+            }
+        }
+
+        const submitSearch = (e)=>{
+            e.preventDefault();
+            let mod = document.getElementById("homeModuleSelect").value;
+            let repo = document.getElementById("homeGithubLink").value;
+
+            if(mod === "none") return;
+
+            console.log("submitting");
+            fetch(`/search?module=${mod}&repo=${repo}`,{
+                method: "get",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
+                .then(r=>r.json())
+                .then((response)=>{
+                    document.getElementById("homePage").style.display = "none";
+                    displayResults(response);
+                })
+                .catch((err)=>{
+                    console.log(err);
+                });
+        }
+
+        document.getElementById("homeForm").addEventListener("submit", submitSearch);
+    </script>
+</body>
+</html>

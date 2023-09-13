@@ -1,5 +1,16 @@
 const fs = require("fs");
-const recurseDirectory = require("helper.js");
+
+const recurseDirectory = (path, cb, repo)=>{
+    let files = fs.readdirSync(path);
+
+    for(let i = 0; i < files.length; i++){
+        let newPath = `${path}/${files[i]}`;
+        cb(newPath, repo);
+        try{
+            if(fs.lstatSync(newPath).isDirectory()) recurseDirectory(newPath, cb, repo);
+        }catch(e){}
+    }
+}
 
 let removeFile = (filePath)=>{
     if(
@@ -22,8 +33,8 @@ let removeFile = (filePath)=>{
         filePath.includes(".m4p") ||
         filePath.includes(".m4v") 
     ){
-        fs.rm(filePath, {}, (err)=>{});
+        fs.rm(filePath, {recurseive: true, force: true}, (err)=>{});
     }
 }
 
-recurseDirectory(`${__dirname}/repos`, removeFile);
+recurseDirectory(`${__dirname}/../repos`, removeFile);
