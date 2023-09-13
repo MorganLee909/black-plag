@@ -48,11 +48,6 @@ app.use(express.json());
 
 require("./routes.js")(app);
 app.get("/", (req, res)=>{res.sendFile(`${__dirname}/index.html`)});
-<<<<<<< HEAD
-app.get("/compare/:repo", (req, res)=>{res.sendFile(`${__dirname}/compare.html`)});
-
-=======
->>>>>>> development
 if(process.env.NODE_ENV === "production"){
     httpsServer.listen(process.env.HTTPS_PORT);
 }
