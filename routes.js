@@ -39,8 +39,8 @@ module.exports = (app)=>{
         }
 
         //Do things and stuff
-        let result = await getPotentialPlagiarism(mod, repo);
-        result = formatResult(result);
+        let results = await getPotentialPlagiarism(mod, repo);
+        result = formatResult(results, repo);
         res.json(result);
         if(id !== false){
             await repo.save();

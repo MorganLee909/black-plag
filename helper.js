@@ -95,8 +95,9 @@ const cosineSimilarity = (testTerms, compareTerms, mod)=>{
     return cosSim;
 }
 
-const buildCSResults = (arr, cs, compareRepo)=>{
+const buildCSResults = (arr, cs, compareRepo, testRepo)=>{
     if(arr.length < 5){
+        if(compareRepo.uuid === testRepo.uuid) return;
         arr.push({
             cs: cs,
             compareRepo: compareRepo,
@@ -114,6 +115,7 @@ const buildCSResults = (arr, cs, compareRepo)=>{
     }
 
     if(cs > min){
+        if(compareRepo.uuid === testRepo.uuid) return;
         arr[mindex] = {
             cs: cs,
             compareRepo: compareRepo,
@@ -188,26 +190,27 @@ const getPotentialPlagiarism = async (mod, repo)=>{
     let results = [];
     for(let i = 0; i < compareRepos.length; i++){
         let cs = cosineSimilarity(repo.tf, compareRepos[i].tf, mod);
-        buildCSResults(results, cs, repo, compareRepos[i]);
+        buildCSResults(results, cs, compareRepos[i], repo);
     }
 
-    return {
-        studentRepo: repo,
-        results: results
-    };
+    return results;
 }
 
-const formatResult = (data)=>{
-    data.studentRepo = {
-        link: data.studentRepo.link,
-        user: data.studentRepo.user,
-        repo: data.studentRepo.repo,
-        module: data.studentRepo.module
+const formatResult = (results, studentRepo)=>{
+    let data = {
+        studentRepo: {
+            link: studentRepo.link,
+            user: studentRepo.user,
+            repo: studentRepo.repo,
+            module: studentRepo.module
+        },
+        results: []
     }
-
-    for(let i = 0; i < data.results.length; i++){
-        data.results[i].compareRepo.uuid = undefined;
-        data.results[i].compareRepo.tf = undefined;
+    
+    for(let i = 0; i < results.length; i++){
+        results[i].compareRepo.uuid = undefined;
+        results[i].compareRepo.tf = undefined;
+        data.results.push(results[i]);
     }
 
     return data;
