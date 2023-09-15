@@ -12,7 +12,7 @@ let mongooseOptions = {
     useUnifiedTopology: true
 };
 
-let mongoString = "mongodb://127.0.0.1/plag";
+let mongoString = "mongodb://127.0.0.1/plagv2";
 
 let httpsServer = {}
 if(process.env.NODE_ENV === "production"){
@@ -29,7 +29,7 @@ if(process.env.NODE_ENV === "production"){
         }
     });
 
-    mongoString = `mongodb://website:${process.env.MONGODB_PASS}@127.0.0.1:27017/plag?authSource=admin`;
+    mongoString = `mongodb://website:${process.env.MONGODB_PASS}@127.0.0.1:27017/plagv2?authSource=admin`;
 }
 
 mongoose.connect(mongoString, mongooseOptions);
