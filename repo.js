@@ -23,8 +23,7 @@ let RepoSchema = new mongoose.Schema({
     },
     created: {
         type: Date,
-        required: true,
-        default: new Date()
+        required: true
     },
     lastUpdated: {
         type: Date,

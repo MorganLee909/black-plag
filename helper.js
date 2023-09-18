@@ -154,6 +154,7 @@ const createDocument = (mod, id, repo)=>{
         repo: linkParts[4],
         uuid: id,
         module: mod,
+        created: new Date(),
         lastUpdated: new Date(),
         tf: {}
     });
