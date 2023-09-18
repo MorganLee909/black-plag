@@ -42,7 +42,9 @@ const removeFiles = (filePath)=>{
 }
 
 const documentTermFrequency = (file, repo)=>{
-    if(file.substring(file.length - 3) === ".js"){
+    let fileMark = file.split(".");
+    fileMark = fileMark[fileMark.length - 1];
+    if(fileMark === "js" || fileMark === "html"){
         let terms = fs.readFileSync(file, {encoding: "utf8"});
         terms = Array.from(tokenize(terms), t=>t.value);
 
