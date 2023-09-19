@@ -15,6 +15,7 @@
 
         .page{
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100%;
@@ -72,29 +73,30 @@
 
             <input type="submit" value="Submit"/>
         </form>
-    </div>
-
-    <div id="resultsPage" class="page" style="display:none">
+        
         <div id="plagiarismResults"></div>
-
-        <template id="plagiarismResult">
-            <a class="plagiarismResult" target="_blank">
-                <div>
-                    <p class="resultUser"></p>
-                    <p class="resultRepo"></p>
-                </div>
-
-                <p class="resultPercent"></p>
-            </a>
-        </template>
     </div>
+
+    <template id="plagiarismResult">
+        <a class="plagiarismResult" target="_blank">
+            <div>
+                <p class="resultUser"></p>
+                <p class="resultRepo"></p>
+            </div>
+
+            <p class="resultPercent"></p>
+        </a>
+    </template>
 
     <script>
         const displayResults = (data)=>{
             data.results.sort((a, b) => a.cs > b.cs ? -1 : 1);
-            document.getElementById("resultsPage").style.display = "flex";
             let container = document.getElementById("plagiarismResults");
             let template = document.getElementById("plagiarismResult").content.children[0];
+            
+            while(container.children.length > 0){
+                container.removeChild(container.firstChild);
+            }
 
             for(let i = 0; i < data.results.length; i++){
                 let result = template.cloneNode(true);
@@ -122,7 +124,8 @@
             })
                 .then(r=>r.json())
                 .then((response)=>{
-                    document.getElementById("homePage").style.display = "none";
+                    document.getElementById("homeModuleSelect").value = "none";
+                    document.getElementById("homeGithubLink").value = "";
                     displayResults(response);
                 })
                 .catch((err)=>{

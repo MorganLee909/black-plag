@@ -26,25 +26,29 @@ module.exports = (app)=>{
     response = [Repo]
     */
     app.get("/search*", async (req, res)=>{
-        const mod = parseInt(req.query.module);
+        try{
+            const mod = parseInt(req.query.module);
 
-        //Clone repository (remove unnecessary files, Create DB document)
-        const id = await cloneRepo(mod, req.query.repo);
-        let repo = {};
-        if(id === false){
-            let url = req.query.repo.replace(".git", "");
-            repo = await Repo.findOne({link: url, module: mod});
-        }else{
-            repo = createDocument(mod, id, req.query.repo);
-        }
+            //Clone repository (remove unnecessary files, Create DB document)
+            const id = await cloneRepo(mod, req.query.repo);
+            let repo = {};
+            if(id === false){
+                let url = req.query.repo.replace(".git", "");
+                repo = await Repo.findOne({link: url, module: mod});
+            }else{
+                repo = createDocument(mod, id, req.query.repo);
+            }
 
-        //Do things and stuff
-        let results = await getPotentialPlagiarism(mod, repo);
-        result = formatResult(results, repo);
-        res.json(result);
-        if(id !== false){
-            await repo.save();
-            global.idf[req.query.module] = await calculateIdf(mod);
+            //Do things and stuff
+            let results = await getPotentialPlagiarism(mod, repo);
+            result = formatResult(results, repo);
+            res.json(result);
+            if(id !== false){
+                await repo.save();
+                global.idf[req.query.module] = await calculateIdf(mod);
+            }
+        }catch(e){
+            console.error(e);
         }
     });
 }
