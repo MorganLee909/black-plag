@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const compression = require("compression");
 const https = require("https");
 const fs = require("fs");
-const { calculateIdf } = require("./helper.js");
+const calculateIDF = require("./calculateIDF.js");
 
 const app = express();
 
@@ -38,7 +38,7 @@ mongoose.connect(mongoString, mongooseOptions);
 const getIdf = async ()=>{
     global.idf = {};
     for(let i = 1; i <= 21; i++){
-        global.idf[String(i).padStart(2, "0")] = await calculateIdf(i);
+        global.idf[String(i).padStart(2, "0")] = await calculateIDF(i);
     }
 }
 getIdf();

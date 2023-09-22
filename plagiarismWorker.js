@@ -3,6 +3,7 @@ const uuid = require("crypto").randomUUID;
 const util = require("util");
 const exec = util.promisify(require("child_process").exec);
 const tokenize = require("js-tokens");
+const {workerData, parentPort} = require("worker_threads");
 
 const Repo = require("./repo.js");
 
@@ -164,30 +165,6 @@ const createDocument = (mod, id, repo)=>{
     return newRepo;
 }
 
-const calculateIdf = async (mod)=>{
-    let repos = await Repo.find({module: mod});
-
-    let repoCountPerTerm = {};
-    for(let i = 0; i < repos.length; i++){
-        let terms = Object.keys(repos[i].tf);
-        for(let j = 0; j < terms.length; j++){
-            if(!repoCountPerTerm[terms[j]]){
-                repoCountPerTerm[terms[j]] = 1;
-            }else{
-                repoCountPerTerm[terms[j]]++;
-            }
-        }
-    }
-
-    let terms = Object.keys(repoCountPerTerm);
-    let idf = {};
-    for(let i = 0; i < terms.length; i++){
-        idf[terms[i]] = Math.log10(repos.length / repoCountPerTerm[terms[i]]);
-    }
-
-    return idf;
-}
-
 const getPotentialPlagiarism = async (mod, repo)=>{
     let compareRepos = await Repo.find({module: mod});
     
@@ -220,10 +197,28 @@ const formatResult = (results, studentRepo)=>{
     return data;
 }
 
-module.exports = {
-    cloneRepo,
-    createDocument,
-    calculateIdf,
-    getPotentialPlagiarism,
-    formatResult
-};
+const controlFlow = async (mod, repo)=>{
+    const id = await cloneRepo(mod, repo);
+
+    //Clone repository (remove unnecessary files, create DB document) or fetch existing
+    if(id === false){
+        let url = repo.replace(".git", "");
+        repo = await Repo.findOne({link: url, module: mod});
+    }else{
+        repo = createDocument(mod, id, repo);
+    }
+
+    //Search
+    let results = await getPotentialPlagiarism(mod, repo);
+    result = formatResult(results, repo);
+
+    parentPort.postMessage(result);
+
+    if(id !== false){
+        await repo.save();
+        let modString = String(mod).padLeft("0", 2);
+        global.idf[modString] = await calculateIdf(mod);
+    }
+}
+
+controlFlow(workerData.mod, workerData.repo);

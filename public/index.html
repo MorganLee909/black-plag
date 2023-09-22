@@ -263,6 +263,11 @@
             })
                 .then(r=>r.json())
                 .then((response)=>{
+                    if(typeof(response) === "string"){
+                        notify("error", response);
+                        return;
+                    }
+
                     document.getElementById("homeModuleSelect").value = "none";
                     document.getElementById("homeGithubLink").value = "";
                     displayResults(response);
