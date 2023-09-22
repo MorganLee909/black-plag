@@ -4,20 +4,7 @@ const util = require("util");
 const exec = util.promisify(require("child_process").exec);
 const tokenize = require("js-tokens");
 const {workerData, parentPort} = require("worker_threads");
-
-const Repo = require("./repo.js");
-
-const recurseDirectory = (path, cb, repo)=>{
-    let files = fs.readdirSync(path);
-
-    for(let i = 0; i < files.length; i++){
-        let newPath = `${path}/${files[i]}`;
-        cb(newPath, repo);
-        try{
-            if(fs.lstatSync(newPath).isDirectory()) recurseDirectory(newPath, cb, repo);
-        }catch(e){}
-    }
-}
+const recurseDirectory = require("./recurseDirectory.js");
 
 const removeFiles = (filePath)=>{
     if(
@@ -126,48 +113,7 @@ const buildCSResults = (arr, cs, compareRepo, testRepo)=>{
     }
 }
 
-const cloneRepo = async (mod, link)=>{
-    link = link.trim();
-    let archivedLink = link.replace(".git", "");
-
-    let id = uuid();
-    let repo = await Repo.findOne({link: archivedLink, module: mod});
-    if(repo !== null) return false;
-
-    let cloneCommand = `git clone ${link} ${__dirname}/repos/module${mod}/${id}`;
-
-    let {err} = await exec(cloneCommand);
-    if(err) throw new Error("Unable to clone repository");
-
-    recurseDirectory(`${__dirname}/repos/module${mod}/${id}`, removeFiles);
-
-    return id;
-}
-
-const createDocument = (mod, id, repo)=>{
-    repo = repo.trim();
-    repo = repo.replace(".git", "");
-    let linkParts = repo.split("/");
-
-    let newRepo = new Repo({
-        link: repo,
-        user: linkParts[3],
-        repo: linkParts[4],
-        uuid: id,
-        module: mod,
-        created: new Date(),
-        lastUpdated: new Date(),
-        tf: {}
-    });
-
-    recurseDirectory(`${__dirname}/repos/module${mod}/${id}`, documentTermFrequency, newRepo);
-
-    return newRepo;
-}
-
-const getPotentialPlagiarism = async (mod, repo)=>{
-    let compareRepos = await Repo.find({module: mod});
-    
+const getPotentialPlagiarism = async (mod, repo, compareRepos)=>{
     let results = [];
     for(let i = 0; i < compareRepos.length; i++){
         let cs = cosineSimilarity(repo.tf, compareRepos[i].tf, mod);
@@ -197,28 +143,16 @@ const formatResult = (results, studentRepo)=>{
     return data;
 }
 
-const controlFlow = async (mod, repo)=>{
-    const id = await cloneRepo(mod, repo);
-
-    //Clone repository (remove unnecessary files, create DB document) or fetch existing
-    if(id === false){
-        let url = repo.replace(".git", "");
-        repo = await Repo.findOne({link: url, module: mod});
-    }else{
-        repo = createDocument(mod, id, repo);
+const controlFlow = async (mod, repo, compareRepos)=>{
+    if(Object.keys(repo.tf).length === 0){
+        recurseDirectory(`${__dirname}/repos/module${mod}/${id}`, documentTermFrequency, repo);
     }
 
     //Search
-    let results = await getPotentialPlagiarism(mod, repo);
+    let results = await getPotentialPlagiarism(mod, repo, compareRepos);
     result = formatResult(results, repo);
 
     parentPort.postMessage(result);
-
-    if(id !== false){
-        await repo.save();
-        let modString = String(mod).padLeft("0", 2);
-        global.idf[modString] = await calculateIdf(mod);
-    }
 }
 
-controlFlow(workerData.mod, workerData.repo);
+controlFlow(workerData.mod, workerData.repo, workerData.compareRepos);
