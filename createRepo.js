@@ -60,7 +60,6 @@ const createDocument = (mod, id, repo)=>{
         module: mod,
         created: new Date(),
         lastUpdated: new Date(),
-        tf: {}
     });
 
     return newRepo;

@@ -3,6 +3,7 @@ const util = require("util");
 const tokenize = require("js-tokens");
 const {workerData, parentPort} = require("worker_threads");
 const recurseDirectory = require("./recurseDirectory.js");
+const {createClient}= require("redis");
 
 const documentTermFrequency = (file, repo)=>{
     let fileMark = file.split(".");
@@ -32,7 +33,7 @@ const documentTermFrequency = (file, repo)=>{
     }
 }
 
-const cosineSimilarity = (testTerms, compareTerms, mod)=>{
+const cosineSimilarity = (testTerms, compareTerms, mod, idf)=>{
     let sumOfATimesB  = 0;//For each term, multiple them together, then add them all up
     let sumOfASq = 0; //Square each term in test file, then sum them all up
     let sumOfBSq = 0; //Squre each term in compareFile, then sum them all up
@@ -45,7 +46,7 @@ const cosineSimilarity = (testTerms, compareTerms, mod)=>{
 
     const modString = String(mod).padStart(2, "0");
     allTerms.forEach((elem)=>{
-        const idfMultiplier = global.idf[modString][elem] ? global.idf[modString][elem] : 0;
+        const idfMultiplier = idf[modString][elem] ? idf[modString][elem] : 0;
         const testValue = testTerms[elem] ? testTerms[elem].augmented * idfMultiplier : 0;
         const compareValue = compareTerms[elem] ? compareTerms[elem].augmented * idfMultiplier : 0;
 
@@ -88,10 +89,15 @@ const buildCSResults = (arr, cs, compareRepo, testRepo)=>{
     }
 }
 
-const getPotentialPlagiarism = async (mod, repo, compareRepos)=>{
+const getPotentialPlagiarism = async (repo, compareRepos, idf)=>{
     let results = [];
     for(let i = 0; i < compareRepos.length; i++){
-        let cs = cosineSimilarity(repo.tf, compareRepos[i].tf, mod);
+        try{
+            let thing = Object.keys(compareRepos[i].tf);
+        }catch(e){
+            console.log(compareRepos[i]);
+        }
+        let cs = cosineSimilarity(repo.tf, compareRepos[i].tf, repo.module, idf);
         buildCSResults(results, cs, compareRepos[i], repo);
     }
 
@@ -118,17 +124,25 @@ const formatResult = (results, studentRepo)=>{
     return data;
 }
 
-const controlFlow = async (mod, repo, compareRepos)=>{
-    console.log(repo);
-    if(Object.keys(repo.tf).length === 0){
-        recurseDirectory(`${__dirname}/repos/module${mod}/${id}`, documentTermFrequency, repo);
+const controlFlow = async ()=>{
+    console.time("read");
+    const redClient = await createClient().connect();
+    let repo = JSON.parse(await redClient.get("repo"));
+    let compareRepos = JSON.parse(await redClient.get("compareRepos"));
+    let idf = JSON.parse(await redClient.get("idf"));
+    redClient.disconnect();
+    console.timeEnd("read");
+
+    if(!repo.tf){
+        repo.tf = {};
+        recurseDirectory(`${__dirname}/repos/module${repo.module}/${repo.uuid}`, documentTermFrequency, repo);
     }
 
     //Search
-    let results = await getPotentialPlagiarism(mod, repo, compareRepos);
+    let results = await getPotentialPlagiarism(repo, compareRepos, idf);
     result = formatResult(results, repo);
 
     parentPort.postMessage(result);
 }
 
-controlFlow(workerData.mod, workerData.repo, workerData.compareRepos);
+controlFlow();

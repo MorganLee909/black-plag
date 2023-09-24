@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const compression = require("compression");
 const https = require("https");
 const fs = require("fs");
+const {createClient} = require("redis");
 const calculateIDF = require("./calculateIDF.js");
 
 const app = express();
@@ -32,14 +33,17 @@ if(process.env.NODE_ENV === "production"){
     mongoString = `mongodb://website:${process.env.MONGODB_PASS}@127.0.0.1:27017/plagv2?authSource=admin`;
 }
 
-mongoose.connect(mongoString, mongooseOptions);
+global.db = mongoose.connect(mongoString, mongooseOptions);
 
 //Calculate IDF for all corpuses
 const getIdf = async ()=>{
-    global.idf = {};
+    let idf = {};
     for(let i = 1; i <= 21; i++){
-        global.idf[String(i).padStart(2, "0")] = await calculateIDF(i);
+        idf[String(i).padStart(2, "0")] = await calculateIDF(i);
     }
+    const redClient = await createClient().connect();
+    await redClient.set("idf", JSON.stringify(idf));
+    redClient.disconnect();
 }
 getIdf();
 
