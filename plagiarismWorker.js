@@ -92,11 +92,7 @@ const buildCSResults = (arr, cs, compareRepo, testRepo)=>{
 const getPotentialPlagiarism = async (repo, compareRepos, idf)=>{
     let results = [];
     for(let i = 0; i < compareRepos.length; i++){
-        try{
-            let thing = Object.keys(compareRepos[i].tf);
-        }catch(e){
-            console.log(compareRepos[i]);
-        }
+        let thing = Object.keys(compareRepos[i].tf);
         let cs = cosineSimilarity(repo.tf, compareRepos[i].tf, repo.module, idf);
         buildCSResults(results, cs, compareRepos[i], repo);
     }
@@ -125,24 +121,34 @@ const formatResult = (results, studentRepo)=>{
 }
 
 const controlFlow = async ()=>{
-    console.time("read");
+    let readDataStart = new Date().getTime();
     const redClient = await createClient().connect();
     let repo = JSON.parse(await redClient.get("repo"));
     let compareRepos = JSON.parse(await redClient.get("compareRepos"));
     let idf = JSON.parse(await redClient.get("idf"));
     redClient.disconnect();
-    console.timeEnd("read");
+    let readDataEnd = new Date().getTime();
+    fs.appendFileSync("timingData.csv", `${repo.link},readRedis,${readDataEnd - readDataStart}\n`)
 
+    let indexDataStart = new Date().getTime();
     if(!repo.tf){
         repo.tf = {};
         recurseDirectory(`${__dirname}/repos/module${repo.module}/${repo.uuid}`, documentTermFrequency, repo);
     }
+    let indexDataEnd = new Date().getTime();
+    fs.appendFileSync("timingData.csv", `${repo.link},indexData,${indexDataEnd - indexDataStart}\n`);
 
     //Search
+    let compareIndicesStart = new Date().getTime();
     let results = await getPotentialPlagiarism(repo, compareRepos, idf);
     result = formatResult(results, repo);
+    let compareIndicesEnd = new Date().getTime();
+    fs.appendFileSync("timingData.csv", `${repo.link},compareIndices,${compareIndicesEnd - compareIndicesStart}\n`);
 
-    parentPort.postMessage(result);
+    parentPort.postMessage({
+        result: result,
+        repoTf: repo.tf
+    });
 }
 
 controlFlow();

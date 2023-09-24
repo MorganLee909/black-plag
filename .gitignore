@@ -3,3 +3,4 @@ node_modules/
 repos/*
 idf.json
 *.swp
+dump.rdb

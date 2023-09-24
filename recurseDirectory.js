@@ -1,6 +1,6 @@
 const fs = require("fs");
 
-module.exports = (path, cb, repo)=>{
+const recurseDirectory = (path, cb, repo)=>{
     let files = fs.readdirSync(path);
 
     for(let i = 0; i < files.length; i++){
@@ -11,3 +11,5 @@ module.exports = (path, cb, repo)=>{
         }catch(e){}
     }
 }
+
+module.exports = recurseDirectory;

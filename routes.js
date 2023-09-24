@@ -4,6 +4,7 @@ const {createClient} = require("redis");
 const {cloneRepo, getRepo} = require("./createRepo.js");
 
 const {Worker} = require("worker_threads");
+const fs = require("fs");
 
 module.exports = (app)=>{
     /*
@@ -16,20 +17,25 @@ module.exports = (app)=>{
 
     /*
     POST: search stored repos for matching string
-    req.params = {
+    req.query = {
         module: Number
         repo: String (URL)
     }
     response = [Repo]
     */
     app.get("/search*", async (req, res)=>{
+        let startTime = new Date().getTime();
         const mod = parseInt(req.query.module);
 
+        let cloneStart = new Date().getTime();
         const id = await cloneRepo(mod, req.query.repo);
+        let cloneEnd = new Date().getTime();
+        fs.appendFileSync("timingData.csv", `${req.query.repo},clone,${cloneEnd - cloneStart}\n`);
         
         const repo = await getRepo(id, req.query.repo, mod);
         const compareRepos = await Repo.find({module: mod});
 
+        let writeDataStart = new Date().getTime();
         const redClient = await createClient().connect();
         await redClient.set("repo", JSON.stringify({
             link: repo.link,
@@ -50,12 +56,22 @@ module.exports = (app)=>{
             });
         }
         await redClient.set("compareRepos", JSON.stringify(compareReposCopy));
+        let writeDataEnd = new Date().getTime();
+        fs.appendFileSync("timingData.csv", `${repo.link},writeRedis,${writeDataEnd - writeDataStart}\n`);
 
         redClient.disconnect();
         const worker = new Worker("./plagiarismWorker.js"); 
 
         worker.on("message", (data)=>{
-            res.json(data);
+            res.json(data.result);
+            let endTime = new Date().getTime();
+            let cloneString = id ? "NoClone" : "Clone";
+            fs.appendFileSync("timingData.csv", `${repo.link},overallTime${cloneString},${endTime - startTime}\n`);
+            if(id !== false){
+                repo.tf = data.repoTf;
+                repo.markModified("tf");
+                repo.save();
+            }
         });
         worker.on("error", (err)=>{
             console.error(err);
