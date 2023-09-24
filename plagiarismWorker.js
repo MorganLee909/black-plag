@@ -92,6 +92,7 @@ const buildCSResults = (arr, cs, compareRepo, testRepo)=>{
 const getPotentialPlagiarism = async (repo, compareRepos, idf)=>{
     let results = [];
     for(let i = 0; i < compareRepos.length; i++){
+        if(repo.link === compareRepos[i].link) continue;
         let thing = Object.keys(compareRepos[i].tf);
         let cs = cosineSimilarity(repo.tf, compareRepos[i].tf, repo.module, idf);
         buildCSResults(results, cs, compareRepos[i], repo);
