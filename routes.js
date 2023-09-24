@@ -37,7 +37,7 @@ module.exports = (app)=>{
 
         let writeDataStart = new Date().getTime();
         const redClient = await createClient().connect();
-        await redClient.set("repo", JSON.stringify({
+        await redClient.set(repo.uuid, JSON.stringify({
             link: repo.link,
             user: repo.user,
             repo: repo.repo,
@@ -55,12 +55,17 @@ module.exports = (app)=>{
                 tf: compareRepos[i].tf
             });
         }
-        await redClient.set("compareRepos", JSON.stringify(compareReposCopy));
+        await redClient.set(req.query.module, JSON.stringify(compareReposCopy));
         let writeDataEnd = new Date().getTime();
         fs.appendFileSync("timingData.csv", `${repo.link},writeRedis,${writeDataEnd - writeDataStart}\n`);
 
         redClient.disconnect();
-        const worker = new Worker("./plagiarismWorker.js"); 
+        const worker = new Worker("./plagiarismWorker.js", {
+            workerData: {
+                uuid: repo.uuid,
+                redisMod: req.query.module
+            }
+        }); 
 
         worker.on("message", (data)=>{
             res.json(data.result);

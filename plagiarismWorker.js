@@ -120,11 +120,11 @@ const formatResult = (results, studentRepo)=>{
     return data;
 }
 
-const controlFlow = async ()=>{
+const controlFlow = async (uuid, redisMod)=>{
     let readDataStart = new Date().getTime();
     const redClient = await createClient().connect();
-    let repo = JSON.parse(await redClient.get("repo"));
-    let compareRepos = JSON.parse(await redClient.get("compareRepos"));
+    let repo = JSON.parse(await redClient.get(uuid));
+    let compareRepos = JSON.parse(await redClient.get(redisMod));
     let idf = JSON.parse(await redClient.get("idf"));
     redClient.disconnect();
     let readDataEnd = new Date().getTime();
@@ -151,4 +151,4 @@ const controlFlow = async ()=>{
     });
 }
 
-controlFlow();
+controlFlow(workerData.uuid, workerData.redisMod);
