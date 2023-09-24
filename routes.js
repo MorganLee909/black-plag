@@ -28,7 +28,11 @@ module.exports = (app)=>{
         const mod = parseInt(req.query.module);
 
         let cloneStart = new Date().getTime();
-        const id = await cloneRepo(mod, req.query.repo);
+        try{
+            const id = await cloneRepo(mod, req.query.repo);
+        }catch(e){
+            return res.json("Invalid URL");
+        }
         let cloneEnd = new Date().getTime();
         fs.appendFileSync("timingData.csv", `${req.query.repo},clone,${cloneEnd - cloneStart}\n`);
         
