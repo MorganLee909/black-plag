@@ -126,6 +126,8 @@ const controlFlow = async (uuid, redisMod)=>{
     let repo = JSON.parse(await redClient.get(uuid));
     let compareRepos = JSON.parse(await redClient.get(redisMod));
     let idf = JSON.parse(await redClient.get("idf"));
+    await redClient.del(uuid);
+    await redClient.del(redisMod);
     redClient.disconnect();
     let readDataEnd = new Date().getTime();
     fs.appendFileSync("timingData.csv", `${repo.link},readRedis,${readDataEnd - readDataStart}\n`)
