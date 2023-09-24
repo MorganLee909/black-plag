@@ -1,3 +1,5 @@
+const fs = require("fs");
+
 module.exports = (path, cb, repo)=>{
     let files = fs.readdirSync(path);
 

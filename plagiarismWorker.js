@@ -1,33 +1,8 @@
 const fs = require("fs");
-const uuid = require("crypto").randomUUID;
 const util = require("util");
-const exec = util.promisify(require("child_process").exec);
 const tokenize = require("js-tokens");
 const {workerData, parentPort} = require("worker_threads");
 const recurseDirectory = require("./recurseDirectory.js");
-
-const removeFiles = (filePath)=>{
-    if(
-        filePath.includes("node_modules") ||
-        filePath.includes(".git") ||
-        filePath.includes("package-lock.json") ||
-        filePath.includes(".jpg") ||
-        filePath.includes(".jpeg") ||
-        filePath.includes(".webp") ||
-        filePath.includes(".png") ||
-        filePath.includes(".gif") ||
-        filePath.includes(".svg") ||
-        filePath.includes(".ico") ||
-        filePath.includes(".webm") ||
-        filePath.includes(".mkv") ||
-        filePath.includes(".avi") ||
-        filePath.includes(".mov") ||
-        filePath.includes(".wmv") ||
-        filePath.includes(".mp4") ||
-        filePath.includes(".m4p") ||
-        filePath.includes(".m4v") 
-    ) fs.rm(filePath, {recursive: true, force: true}, (err)=>{});
-}
 
 const documentTermFrequency = (file, repo)=>{
     let fileMark = file.split(".");
@@ -144,6 +119,7 @@ const formatResult = (results, studentRepo)=>{
 }
 
 const controlFlow = async (mod, repo, compareRepos)=>{
+    console.log(repo);
     if(Object.keys(repo.tf).length === 0){
         recurseDirectory(`${__dirname}/repos/module${mod}/${id}`, documentTermFrequency, repo);
     }

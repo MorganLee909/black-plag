@@ -24,33 +24,14 @@ module.exports = (app)=>{
     app.get("/search*", async (req, res)=>{
         const mod = parseInt(req.query.module);
 
-        let worker = new Worker("./plagiarismWorker.js", {
-            workerData: {
-                repo: req.query.repo,
-                mod: mod
-            }
-        });
-
-        worker.on("message", (data)=>{
-            res.json(data);
-        });
-        worker.on("error", (err)=>{
-            console.error(err);
-            res.json("Service worker error");
-        });
-    });
-
-    app.get("/search*", async (req, res)=>{
-        const mod = parseInt(req.query.module);
-
-        const id = await cloneRepo(mod, repo);
+        const id = await cloneRepo(mod, req.query.repo);
         
-        const repo = getRepo(id);
-        const compareRepos = Repo.find({module: mod});
+        const repo = await getRepo(id, req.query.repo, mod);
+        const compareRepos = await Repo.find({module: mod});
 
         const worker = new Worker("./plagiarismWorker.js", {
             workerData: {
-                repo: req.query.repo,
+                repo: repo,
                 mod: mod,
                 compareRepos: compareRepos
             }
@@ -61,7 +42,7 @@ module.exports = (app)=>{
         });
         worker.on("error", (err)=>{
             console.error(err);
-            res.json("Server worker error"));
-        })
+            res.json("Service worker error");
+        });
     });
 }
