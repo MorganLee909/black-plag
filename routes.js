@@ -28,8 +28,9 @@ module.exports = (app)=>{
         const mod = parseInt(req.query.module);
 
         let cloneStart = new Date().getTime();
+        let i = "";
         try{
-            const id = await cloneRepo(mod, req.query.repo);
+            id = await cloneRepo(mod, req.query.repo);
         }catch(e){
             return res.json("Invalid URL");
         }
