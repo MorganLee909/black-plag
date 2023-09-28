@@ -134,10 +134,8 @@ const controlFlow = async (uuid, redisMod)=>{
     fs.appendFileSync("timingData.csv", `${repo.link},readRedis,${readDataEnd - readDataStart}\n`)
 
     let indexDataStart = new Date().getTime();
-    if(!repo.tf){
-        repo.tf = {};
-        recurseDirectory(`${__dirname}/repos/module${repo.module}/${repo.uuid}`, documentTermFrequency, repo);
-    }
+    repo.tf = {};
+    recurseDirectory(`${__dirname}/repos/module${repo.module}/${repo.uuid}`, documentTermFrequency, repo);
     let indexDataEnd = new Date().getTime();
     fs.appendFileSync("timingData.csv", `${repo.link},indexData,${indexDataEnd - indexDataStart}\n`);
 

@@ -34,8 +34,6 @@ const cloneRepo = async (mod, link)=>{
     let archivedLink = link.replace(".git", "");
 
     let id = uuid();
-    let repo = await Repo.findOne({link: archivedLink, module: mod});
-    if(repo !== null) return false;
 
     let cloneCommand = `git clone ${link} ${__dirname}/repos/module${mod}/${id}`;
 
@@ -65,16 +63,21 @@ const createDocument = (mod, id, repo)=>{
     return newRepo;
 }
 
-const getRepo = async (id, repo, mod)=>{
-    if(id === false){
-        let url = repo.replace(".git", "");
-        return await Repo.findOne({link: url, module: mod});
-    }else{
-        return createDocument(mod, id, repo)
-    }
+const removeExisting = async (link)=>{
+    link = link.trim();
+    link = link.replace(".git", "");
+
+    let repo = await Repo.findOne({link: link});
+    if(repo === null) return;
+    let mod = String(repo.module).padStart("0", 2);
+
+    fs.rm(`${__dirname}/repos/module${mod}/${repo.uuid}`, {recursive: true, force: true}, (err)=>{if(err)console.error(err)});
+
+    Repo.deleteOne({_id: repo._id}).catch((err)=>{console.error(err)});
 }
 
 module.exports = {
     cloneRepo,
-    getRepo
+    createDocument,
+    removeExisting
 }

@@ -1,7 +1,7 @@
 const Repo = require("./repo.js");
 const {createClient} = require("redis");
 
-const {cloneRepo, getRepo} = require("./createRepo.js");
+const {cloneRepo, createDocument, removeExisting} = require("./createRepo.js");
 
 const {Worker} = require("worker_threads");
 const fs = require("fs");
@@ -27,8 +27,10 @@ module.exports = (app)=>{
         let startTime = new Date().getTime();
         const mod = parseInt(req.query.module);
 
+        await removeExisting(req.query.repo);
+
         let cloneStart = new Date().getTime();
-        let i = "";
+        let id = "";
         try{
             id = await cloneRepo(mod, req.query.repo);
         }catch(e){
@@ -37,7 +39,7 @@ module.exports = (app)=>{
         let cloneEnd = new Date().getTime();
         fs.appendFileSync("timingData.csv", `${req.query.repo},clone,${cloneEnd - cloneStart}\n`);
         
-        const repo = await getRepo(id, req.query.repo, mod);
+        const repo = createDocument(mod, id, req.query.repo);
         const compareRepos = await Repo.find({module: mod});
 
         let writeDataStart = new Date().getTime();
@@ -77,11 +79,9 @@ module.exports = (app)=>{
             let endTime = new Date().getTime();
             let cloneString = id ? "NoClone" : "Clone";
             fs.appendFileSync("timingData.csv", `${repo.link},overallTime${cloneString},${endTime - startTime}\n`);
-            if(id !== false){
-                repo.tf = data.repoTf;
-                repo.markModified("tf");
-                repo.save();
-            }
+            repo.tf = data.repoTf;
+            repo.markModified("tf");
+            repo.save();
         });
         worker.on("error", (err)=>{
             console.error(err);
