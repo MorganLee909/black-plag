@@ -34,6 +34,41 @@
             background: green;
         }
 
+        #notes{
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 2;
+            background: black;
+        }
+
+        #notes h1{
+            color: red;
+        }
+        
+        #notes ul{
+            max-width: 750px;
+        }
+        
+        #notes li{
+            margin: 15px;
+            line-height: 35px;
+        }
+
+        #notes button{
+            font-size: 18px;
+            border: none;
+            background: green;
+            padding: 5px 15px;
+            color: white;
+            cursor: pointer;
+        }
+
         .page{
             display: flex;
             flex-direction: column;
@@ -167,6 +202,21 @@
         <div class="loader"></div>
     </div>
 
+    <div id="notes" style="display:none">
+        <h1>PLEASE READ BEFORE USING</h1>
+
+        <ul>
+            <li>This site is meant to be used as an aid to help find plagiarism. It is not a full and complete solution.</li>
+            <li>This tool can only search against repositories that have already been indexed. This means that a student may have copied code from a repository that is not yet in the database. Therefore, if you don't get a match here it may still be plagiarism. Try searching on GitHub.</li>
+            <li>If you do find a plagiarism match on GitHub that didn't display here, please search that repository that you found. It will upload and index the repository so that others can search against it in the future.</li>
+            <li>Finding a match here (even 100%) does not ensure plagiarism. Sometimes repos are just similar with no copying, sometimes false positives happen. If you find a good match here, be sure to investigate it yourself.</li>
+            <li>Indexing and searching entire repositories is expensive, so searches may take several seconds. If it takes more than 10 - 20 seconds, there is a good chance that something went wrong.</li>
+            <li>This is currently in a beta version. Issues may arise. Feel free to reach out to me (lmorgan@instructors.2u.com) if you believe you have found some bug or issue. Or if you have a feature request.</li>
+        </ul>
+
+        <button onclick="understands()">I understand</button>
+    </div>
+
     <div id="homePage" class="page">
         <form id="homeForm">
             <select id="homeModuleSelect">
@@ -210,6 +260,15 @@
     </template>
 
     <script>
+        let intro = localStorage.getItem("visited");
+        if(!intro) document.getElementById("notes").style.display = "flex";
+
+        const understands = ()=>{
+            console.log("something");
+            localStorage.setItem("visited", true);
+            document.getElementById("notes").style.display = "none";
+        }
+
         const displayResults = (data)=>{
             data.results.sort((a, b) => a.cs > b.cs ? -1 : 1);
             let container = document.getElementById("plagiarismResults");
