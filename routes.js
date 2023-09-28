@@ -24,6 +24,7 @@ module.exports = (app)=>{
     response = [Repo]
     */
     app.get("/search*", async (req, res)=>{
+        if(req.query.repo.includes("github.com/coding-boot-camp")) return res.json("Cannot upload this repository");
         let startTime = new Date().getTime();
         const mod = parseInt(req.query.module);
 
