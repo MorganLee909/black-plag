@@ -5,7 +5,13 @@ const calculateIDF = async (mod)=>{
 
     let repoCountPerTerm = {};
     for(let i = 0; i < repos.length; i++){
-        let terms = Object.keys(repos[i].tf);
+        let terms = {};
+        try{
+            let terms = Object.keys(repos[i].tf);
+        }catch(e){
+            console.error(`No TF for: ${repos[i].uuid}`);
+            continue;
+        }
         for(let j = 0; j < terms.length; j++){
             if(!repoCountPerTerm[terms[j]]){
                 repoCountPerTerm[terms[j]] = 1;
