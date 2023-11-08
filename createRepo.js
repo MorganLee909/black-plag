@@ -11,14 +11,16 @@ const removeFiles = (filePath)=>{
     fileName = fileName[fileName.length-1];
     fileName = fileName.toLowerCase();
 
-    if(fileName === "build" || fileName === "dist"){
+    if(fileName === "build" || fileName === "dist" || fileName === "node_modules"){
         fs.rm(filePath, {recursive: true, force: true}, (err)=>{});
     }else if(
         !fileName.includes(".js") &&
-        !fileName.includes(".css") && !fileName.includes(".html") &&
+        !fileName.includes(".css") && 
+        !fileName.includes(".html") &&
         !fileName.includes(".jsx") &&
         !fileName.includes(".md") &&
-        !fileName.includes(".handlebars")
+        !fileName.includes(".handlebars") &&
+        !fileName.includes(".hbs")
     ){
         fs.rm(filePath, {}, (err)=>{})
     }
