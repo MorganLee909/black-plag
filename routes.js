@@ -89,4 +89,23 @@ module.exports = (app)=>{
             res.json("Service worker error");
         });
     });
+
+    /*
+    POST: Retrive text from a single file
+    req.query = {
+        repoId: String
+        filePath: String
+        mod: Number
+    }
+    */
+    app.post("/file", async (req, res)=>{
+        let file = `${__dirname}/repos/module${req.body.mod}/${req.body.repoId}/${req.body.filePath}`;
+        let text = fs.readFileSync(file, "utf-8");
+
+        return res.json({
+            repoId: req.body.repoId,
+            filePath: req.body.filePath,
+            text: text
+        });
+    });
 }
