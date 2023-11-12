@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8"/>
+        <title>Repository Comparison | Black Plag</title>
+        <style>
+            body{
+                display: flex;
+                height: 100vh;
+                width: 100vw;
+                background: #12130F;
+                color: white;
+            }
+
+            .files{
+                display: flex;
+                flex-direction: column;
+            }
+
+            .fileButton{
+                background: none;
+                border: none;
+                color: white;
+                margin: 5px 0;
+                cursor: pointer;
+            }
+
+            .fileButton:hover{
+                background: gray;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>File Comparison</h1>
+
+        <div id="studentFiles" class="files"></div>
+
+        <div class="fileDisplay"</div>
+
+        <div class="fileDisplay"</div>
+
+        <div id="compareFiles" class="files"</div>
+
+        <script>
+            const displayFile = (repoData, idx)=>{
+                console.log(repoData);
+                console.log(repoData.files[idx]);
+            }
+
+            const getRepositoryData = ()=>{
+                let parts = window.location.href.split("/");
+
+                fetch(`/repositories/${parts[4]}/${parts[5]}`)
+                    .then(r=>r.json())
+                    .then((response)=>{
+                        if(typeof(response) === "string"){
+                            console.log(response);
+                            return;
+                        }
+
+                        let studentFilesDiv = document.getElementById("studentFiles");
+                        for(let i = 0; i < response.student.files.length; i++){
+                            let file = document.createElement("button");
+                            file.classList.add("fileButton");
+                            file.textContent = response.student.files[i];
+                            file.addEventListener("click", ()=>{
+                                displayFile(response.student, i);
+                            });
+                            studentFilesDiv.appendChild(file);
+                        }
+
+                        let compareFilesDiv = document.getElementById("compareFiles");
+                        for(let i = 0; i < response.compare.files.length; i++){
+                            let file = document.createElement("button");
+                            file.classList.add("fileButton");
+                            file.textContent = response.compare.files[i];
+                            file.addEventListener("click", ()=>{
+                                displayFile(response.compare, i);
+                            });
+                            compareFilesDiv.appendChild(file);
+                        }
+                    })
+                    .catch((err)=>{
+                        console.log(err);
+                    });
+            }
+
+            getRepositoryData();
+        </script>
+    </body>
+</html>

@@ -2,6 +2,7 @@ const Repo = require("./repo.js");
 const {createClient} = require("redis");
 
 const {cloneRepo, createDocument, removeExisting} = require("./createRepo.js");
+const fileList = require("./fileList.js");
 
 const {Worker} = require("worker_threads");
 const fs = require("fs");
@@ -46,6 +47,7 @@ module.exports = (app)=>{
         let writeDataStart = new Date().getTime();
         const redClient = await createClient().connect();
         await redClient.set(repo.uuid, JSON.stringify({
+            _id: repo._id,
             link: repo.link,
             user: repo.user,
             repo: repo.repo,
@@ -57,6 +59,7 @@ module.exports = (app)=>{
         let compareReposCopy = [];
         for(let i = 0; i < compareRepos.length; i++){
             compareReposCopy.push({
+                _id: compareRepos[i]._id,
                 link: compareRepos[i].link,
                 user: compareRepos[i].user,
                 repo: compareRepos[i].repo,
@@ -110,6 +113,58 @@ module.exports = (app)=>{
             repoId: req.body.repoId,
             filePath: req.body.filePath,
             text: text
+        });
+    });
+
+
+    /*
+    GET: Display page for repo comparisons
+    req.params = {
+        studentRepo: String ID
+        compareRepo: String ID
+    }
+    response = compare.html
+    */
+    app.get("/compare/:studentRepo/:compareRepo", (req, res)=>{
+        res.sendFile(`${__dirname}/public/compare.html`);
+    });
+
+
+    /*
+    GET: Retrieve repository data for student and compare repositories
+    req.params = {
+        studentRepo: string ID
+        compareRepo: String ID
+    }
+    response = {
+        student: Repo
+        compare: Repo
+    }
+    */
+    app.get("/repositories/:studentRepo/:compareRepo", async (req, res)=>{
+        let data = [];
+        try{
+            let studentRepo = Repo.findOne({_id: req.params.studentRepo}, {tf: 0, created: 0, lastUpdated: 0});
+            let compareRepo = Repo.findOne({_id: req.params.compareRepo}, {tf: 0, created: 0, lastUpdated: 0});
+
+            data = await Promise.all([studentRepo, compareRepo]);
+        }catch(e){
+            console.error(e);
+            return res.json("ERROR: unable to find repository");
+        }
+
+        let studentFiles = fileList(`${__dirname}/repos/module${data[0].module}/${data[0].uuid}`, data[0].uuid, data[0].module);
+        let compareFiles = fileList(`${__dirname}/repos/module${data[0].module}/${data[1].uuid}`, data[1].uuid, data[1].module);
+
+        res.json({
+            student: {
+                ...data[0],
+                files: studentFiles
+            },
+            compare: {
+                ...data[1],
+                files: compareFiles
+            }
         });
     });
 }

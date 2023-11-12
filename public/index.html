@@ -279,7 +279,7 @@
 
             for(let i = 0; i < data.results.length; i++){
                 let result = template.cloneNode(true);
-                result.href = data.results[i].compareRepo.link;
+                result.href = `/compare/${data.studentRepo._id}/${data.results[i].compareRepo._id}`;
                 result.querySelector(".resultUser").textContent = `User: ${data.results[i].compareRepo.user}`;
                 result.querySelector(".resultRepo").textContent = `Repo: ${data.results[i].compareRepo.repo}`;
                 result.querySelector(".resultPercent").textContent = `${Math.round(data.results[i].cs * 100)}% repository match`;

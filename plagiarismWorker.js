@@ -104,6 +104,7 @@ const getPotentialPlagiarism = async (repo, compareRepos, idf)=>{
 const formatResult = (results, studentRepo)=>{
     let data = {
         studentRepo: {
+            _id: studentRepo._id,
             link: studentRepo.link,
             user: studentRepo.user,
             repo: studentRepo.repo,
