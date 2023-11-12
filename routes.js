@@ -99,8 +99,12 @@ module.exports = (app)=>{
     }
     */
     app.post("/file", async (req, res)=>{
-        let file = `${__dirname}/repos/module${req.body.mod}/${req.body.repoId}/${req.body.filePath}`;
-        let text = fs.readFileSync(file, "utf-8");
+        try{
+            let file = `${__dirname}/repos/module${req.body.mod}/${req.body.repoId}/${req.body.filePath}`;
+            let text = fs.readFileSync(file, "utf-8");
+        }catch(e){
+            return res.json("ERROR: could not find file");
+        }
 
         return res.json({
             repoId: req.body.repoId,
