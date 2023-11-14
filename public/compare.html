@@ -35,6 +35,7 @@
                 border: none;
                 color: white;
                 margin: 5px 0;
+                text-align: left;
                 cursor: pointer;
             }
 
@@ -60,12 +61,36 @@
 
             <div id="studentFile" class="fileDisplay"></div>
 
+            <div id="diffFile" class="fileDisplay"></div>
+
             <div id="compareFile" class="fileDisplay"></div>
 
             <div id="compareFiles" class="files"></div>
         </div>
 
+        <script src="/diff.min.js"></script>
         <script>
+            let studentFile = "";
+            let compareFile = "";
+
+            const createDiff = ()=>{
+                if(studentFile === "" || compareFile === "") return;
+
+                let diff = Diff.diffLines(studentFile, compareFile);
+
+                let diffElem = document.getElementById("diffFile");
+                while(diffElem.children.length > 0){
+                    diffElem.removeChild(diffElem.firstChild);
+                }
+                for(let i = 0; i < diff.length; i++){
+                    const color = diff[i].added ? "green" : diff[i].removed ? "red" : "gray";
+                    let p = document.createElement("p");
+                    p.style.color = color;
+                    p.textContent = diff[i].value;
+                    diffElem.appendChild(p);
+                }
+            }
+            
             const displayFile = (repoData, idx, student)=>{
                 fetch("/file", {
                     method: "post",
@@ -83,14 +108,19 @@
                         if(typeof(response) === "string"){
                             console.log(response);
                         }else{
+                            if(student){
+                                studentFile = response.text;
+                            }else{
+                                compareFile = response.text;
+                            }
                             let displayElem = student ? "studentFile" : "compareFile";
                             displayElem = document.getElementById(displayElem);
                             while(displayElem.children.length > 0){
                                 displayElem.removeChild(displayElem.firstChild);
                             }
-                            console.log(response.text);
 
                             displayElem.textContent = response.text;
+                            createDiff();
                         }
                     })
                     .catch((err)=>{

@@ -107,9 +107,7 @@ module.exports = (app)=>{
             text = fs.readFileSync(file, "utf-8");
         }catch(e){
             return res.json("ERROR: could not find file");
-            console.log(e);
         }
-        console.log(text);
 
         return res.json({
             repoId: req.body.repoId,
@@ -118,6 +116,10 @@ module.exports = (app)=>{
         });
     });
 
+    //GET: send code for diffing
+    app.get("/diff.min.js", (req, res)=>{
+        res.sendFile(`${__dirname}/public/diff.min.js`);
+    });
 
     /*
     GET: Display page for repo comparisons
