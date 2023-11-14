@@ -29,6 +29,7 @@ let RepoSchema = new mongoose.Schema({
         type: Date,
         required: true
     },
+    files: [String],
     tf: {}
 });
 

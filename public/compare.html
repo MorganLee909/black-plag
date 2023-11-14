@@ -4,12 +4,25 @@
         <meta charset="utf-8"/>
         <title>Repository Comparison | Black Plag</title>
         <style>
+            *{margin:0;padding:0;box-sizing:border-box;}
             body{
                 display: flex;
+                flex-direction: column;
                 height: 100vh;
                 width: 100vw;
                 background: #12130F;
                 color: white;
+            }
+
+            h1{
+                text-align: center;
+            }
+
+            #filesDiv{
+                display: flex;
+                justify-content: space-around;
+                height: 90%;
+                width: 100%;
             }
 
             .files{
@@ -28,23 +41,61 @@
             .fileButton:hover{
                 background: gray;
             }
+
+            .fileDisplay{
+                height: 75%;
+                width: 25%;
+                background: white;
+                color: black;
+                white-space: pre;
+                overflow-y: auto;
+            }
         </style>
     </head>
     <body>
         <h1>File Comparison</h1>
 
-        <div id="studentFiles" class="files"></div>
+        <div id="filesDiv">
+            <div id="studentFiles" class="files"></div>
 
-        <div class="fileDisplay"</div>
+            <div id="studentFile" class="fileDisplay"></div>
 
-        <div class="fileDisplay"</div>
+            <div id="compareFile" class="fileDisplay"></div>
 
-        <div id="compareFiles" class="files"</div>
+            <div id="compareFiles" class="files"></div>
+        </div>
 
         <script>
-            const displayFile = (repoData, idx)=>{
-                console.log(repoData);
-                console.log(repoData.files[idx]);
+            const displayFile = (repoData, idx, student)=>{
+                fetch("/file", {
+                    method: "post",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        repoId: repoData.uuid,
+                        filePath: repoData.files[idx],
+                        mod: repoData.module
+                    })
+                })
+                    .then(r=>r.json())
+                    .then((response)=>{
+                        if(typeof(response) === "string"){
+                            console.log(response);
+                        }else{
+                            let displayElem = student ? "studentFile" : "compareFile";
+                            displayElem = document.getElementById(displayElem);
+                            while(displayElem.children.length > 0){
+                                displayElem.removeChild(displayElem.firstChild);
+                            }
+                            console.log(response.text);
+
+                            displayElem.textContent = response.text;
+                        }
+                    })
+                    .catch((err)=>{
+                        console.log(err);
+                    });
             }
 
             const getRepositoryData = ()=>{
@@ -64,7 +115,7 @@
                             file.classList.add("fileButton");
                             file.textContent = response.student.files[i];
                             file.addEventListener("click", ()=>{
-                                displayFile(response.student, i);
+                                displayFile(response.student, i, true);
                             });
                             studentFilesDiv.appendChild(file);
                         }
@@ -75,7 +126,7 @@
                             file.classList.add("fileButton");
                             file.textContent = response.compare.files[i];
                             file.addEventListener("click", ()=>{
-                                displayFile(response.compare, i);
+                                displayFile(response.compare, i, false);
                             });
                             compareFilesDiv.appendChild(file);
                         }

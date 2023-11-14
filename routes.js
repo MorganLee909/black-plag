@@ -2,7 +2,6 @@ const Repo = require("./repo.js");
 const {createClient} = require("redis");
 
 const {cloneRepo, createDocument, removeExisting} = require("./createRepo.js");
-const fileList = require("./fileList.js");
 
 const {Worker} = require("worker_threads");
 const fs = require("fs");
@@ -102,12 +101,15 @@ module.exports = (app)=>{
     }
     */
     app.post("/file", async (req, res)=>{
+        let text = "";
         try{
             let file = `${__dirname}/repos/module${req.body.mod}/${req.body.repoId}/${req.body.filePath}`;
-            let text = fs.readFileSync(file, "utf-8");
+            text = fs.readFileSync(file, "utf-8");
         }catch(e){
             return res.json("ERROR: could not find file");
+            console.log(e);
         }
+        console.log(text);
 
         return res.json({
             repoId: req.body.repoId,
@@ -128,7 +130,6 @@ module.exports = (app)=>{
     app.get("/compare/:studentRepo/:compareRepo", (req, res)=>{
         res.sendFile(`${__dirname}/public/compare.html`);
     });
-
 
     /*
     GET: Retrieve repository data for student and compare repositories
@@ -153,18 +154,9 @@ module.exports = (app)=>{
             return res.json("ERROR: unable to find repository");
         }
 
-        let studentFiles = fileList(`${__dirname}/repos/module${data[0].module}/${data[0].uuid}`, data[0].uuid, data[0].module);
-        let compareFiles = fileList(`${__dirname}/repos/module${data[0].module}/${data[1].uuid}`, data[1].uuid, data[1].module);
-
         res.json({
-            student: {
-                ...data[0],
-                files: studentFiles
-            },
-            compare: {
-                ...data[1],
-                files: compareFiles
-            }
+            student: data[0],
+            compare: data[1]
         });
     });
 }
