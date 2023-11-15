@@ -228,6 +228,27 @@
                     calc( 0*var(--w)) 0,calc(-1*var(--w)) 0,calc(-2*var(--w)) 0,calc(-3*var(--w)) 0,calc(-4*var(--w)) 0,
                     calc(-5*var(--w)) 0,calc(-6*var(--w)) 0,calc(-7*var(--w)) 0,calc(-8*var(--w)) 0,calc(-9*var(--w)) 0}
             }
+
+            .notifier{
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                position: fixed;
+                top: 15px;
+                left: calc(50% - 375px);
+                width: 750px;
+                font-size: 22px;
+                font-weight: bold;
+                text-align: center;
+            }
+
+            .notifier.error{
+                background: red;
+            }
+
+            .notifier.success{
+                background: green;
+            }
         </style>
     </head>
     <body>
@@ -282,13 +303,29 @@
                 compare: {}
             };
 
+            const notify = (type, message)=>{
+                let notifier = document.createElement("div");
+                notifier.classList.add("notifier");
+                notifier.classList.add(type);
+                document.body.appendChild(notifier);
+                
+                let p = document.createElement("p");
+                p.textContent = message;
+                p.classList.add("notifierContent");
+                notifier.appendChild(p);
+
+                setTimeout(()=>{
+                    notifier.parentElement.removeChild(notifier);
+                }, 5000);
+            }
+
             const closeDiff = ()=>{
                 document.getElementById("diffContainer").style.display = "none";
             }
 
             const displayDiff = ()=>{
                 if(studentFile === "" || compareFile === ""){
-                    console.log("Need to select 2 files");
+                    notify("error", "Must select a student and a compare file");
                     return;
                 }
 
