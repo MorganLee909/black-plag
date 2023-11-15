@@ -319,6 +319,11 @@
             const retrieveFile = (repoData, idx, student)=>{
                 let localFile = student ? savedFiles.student[repoData.files[idx]] : savedFiles.compare[repoData.files[idx]];
                 if(localFile){
+                    if(student){
+                       studentFile = localFile;
+                    }else{
+                        compareFile = localFile;
+                    }
                     displayFile(student, localFile);
                 }else{
                     let loader = document.getElementById("loaderContainer");

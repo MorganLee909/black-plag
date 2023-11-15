@@ -91,8 +91,26 @@
             width: 750px;
             margin: 15px;
             color: black;
-            padding: 35px;
             text-decoration: none;
+        }
+
+        .plagiarismResult .options{
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            height: 100%;
+        }
+
+        .plagiarismResult .options a{
+            background: #12130f;
+            color: white;
+            text-decoration: none;
+            padding: 10px 10px;
+            margin-right: 15px;
+        }
+
+        .plagiarismResult .options a:hover{
+            background: #383838;
         }
 
         .alertText{
@@ -249,14 +267,20 @@
     </div>
 
     <template id="plagiarismResult">
-        <a class="plagiarismResult" target="_blank">
+        <div class="plagiarismResult">
             <div>
                 <p class="resultUser"></p>
                 <p class="resultRepo"></p>
             </div>
 
             <p class="resultPercent"></p>
-        </a>
+
+            <div class="options">
+                <a class="repoLink" target="_blank">Repo -></a>
+
+                <a class="compareLink" target="_blank">Compare -></a>
+            </div>
+        </div>
     </template>
 
     <script>
@@ -279,7 +303,8 @@
 
             for(let i = 0; i < data.results.length; i++){
                 let result = template.cloneNode(true);
-                result.href = `/compare/${data.studentRepo._id}/${data.results[i].compareRepo._id}`;
+                result.querySelector(".repoLink").href = data.results[i].compareRepo.link;
+                result.querySelector(".compareLink").href = `/compare/${data.studentRepo._id}/${data.results[i].compareRepo._id}`;
                 result.querySelector(".resultUser").textContent = `User: ${data.results[i].compareRepo.user}`;
                 result.querySelector(".resultRepo").textContent = `Repo: ${data.results[i].compareRepo.repo}`;
                 result.querySelector(".resultPercent").textContent = `${Math.round(data.results[i].cs * 100)}% repository match`;
@@ -331,6 +356,7 @@
                     displayResults(response);
                 })
                 .catch((err)=>{
+                    console.log(err);
                     notify("error", err);
                 })
                 .finally(()=>{
