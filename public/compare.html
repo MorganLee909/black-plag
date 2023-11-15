@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8"/>
         <title>Repository Comparison | Black Plag</title>
-        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.3/styles/vs2015.min.css">
+        <link rel="stylesheet" href="/vs2015.min.css"/>
         <style>
             *{margin:0;padding:0;box-sizing:border-box;}
             body{
@@ -293,7 +293,7 @@
         </div>
 
         <script src="/diff.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+        <script src="/highlight.min.js"></script>
         <script>
             let studentFile = "";
             let compareFile = "";
@@ -407,6 +407,7 @@
                 fetch(`/repositories/${parts[4]}/${parts[5]}`)
                     .then(r=>r.json())
                     .then((response)=>{
+                        console.log(response);
                         if(typeof(response) === "string"){
                             return;
                         }

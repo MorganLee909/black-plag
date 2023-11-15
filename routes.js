@@ -121,6 +121,16 @@ module.exports = (app)=>{
         res.sendFile(`${__dirname}/public/diff.min.js`);
     });
 
+    //GET: send javascript for code highlighting
+    app.get("/highlight.min.js", (req, res)=>{
+        res.sendFile(`${__dirname}/public/highlight.min.js`);
+    });
+
+    //GET: send theme styling for code highlighting
+    app.get("/vs2015.min.css", (req, res)=>{
+        res.sendFile(`${__dirname}/public/vs2015.min.css`);
+    });
+
     /*
     GET: Display page for repo comparisons
     req.params = {

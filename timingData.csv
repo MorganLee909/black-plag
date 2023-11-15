@@ -504,3 +504,9 @@ https://github.com/Hailin-Ruan/Text-editor,readRedis,14
 https://github.com/Hailin-Ruan/Text-editor,indexData,5
 https://github.com/Hailin-Ruan/Text-editor,compareIndices,1
 https://github.com/Hailin-Ruan/Text-editor,overallTimeNoClone,1285
+https://github.com/Hailin-Ruan/Text-editor,clone,882
+https://github.com/Hailin-Ruan/Text-editor,writeRedis,5
+https://github.com/Hailin-Ruan/Text-editor,readRedis,12
+https://github.com/Hailin-Ruan/Text-editor,indexData,5
+https://github.com/Hailin-Ruan/Text-editor,compareIndices,1
+https://github.com/Hailin-Ruan/Text-editor,overallTimeNoClone,1124
