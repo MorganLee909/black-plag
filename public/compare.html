@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="utf-8"/>
@@ -16,14 +17,32 @@
 
             h1{
                 text-align: center;
-                margin-bottom: 35px;
+                margin-bottom: 10px;
+            }
+
+            .actionButtons{
+                display: flex;
+                justify-content: center;
+            }
+
+            .actionButtons button{
+                background: #324672;
+                border: none;
+                color: white;
+                padding: 5px 10px;
+                cursor: pointer;
+                margin-bottom: 10px;
+            }
+
+            .actionButtons button:hover{
+                background: #3e588e;
             }
 
             #filesDiv{
                 display: flex;
                 justify-content: center;
                 align-items: flex-start;
-                height: 90%;
+                height: 85%;
                 width: 100%;
             }
 
@@ -76,6 +95,43 @@
                 min-height: 100%;
             }
 
+            #diffContainer{
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background: #12130f;
+                height: 100vh;
+                width: 100vw;
+                position: fixed;
+                top: 0;
+                left: 0;
+                z-index: 2;
+            }
+
+            #returnButton{
+                background: none;
+                border: none;
+                position: absolute;
+                top: 35px;
+                left: 35px;
+                cursor: pointer;
+            }
+
+            #innerDiff{
+                height: 100%;
+                width: 33%;
+            }
+
+            #innerDiff h2{
+                text-align: center;
+                margin-top: 35px;
+            }
+
+            #diffFile{
+                height: 90%;
+                width: 100%;
+            }
+
             #loaderContainer{
                 display: flex;
                 justify-content: center;
@@ -86,6 +142,7 @@
                 height: 100vh;
                 top: 0;
                 left: 0;
+                z-index: 3;
             }
 
             .loader {
@@ -180,6 +237,10 @@
 
         <h1>File Comparison</h1>
 
+        <div class="actionButtons">
+            <button id="diffButton" onclick="displayDiff()">Show Diff</button>
+        </div>
+
         <div id="filesDiv">
             <div class="fileContainer">
                 <h2>Student code</h2>
@@ -199,7 +260,15 @@
         </div>
         
         <div id="diffContainer" style="display:none">
-            <div id="diffFile" class="fileDisplay"></div>
+            <button id="returnButton" onclick="closeDiff()">
+                <svg width="35px" height="35px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" color="#ffffff">
+                    <path d="M6.75827 17.2426L12.0009 12M17.2435 6.75736L12.0009 12M12.0009 12L6.75827 6.75736M12.0009 12L17.2435 17.2426" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+            </button>
+            <div id="innerDiff">
+                <h2>Diff</h2>
+                <div id="diffFile" class="fileDisplay"></div>
+            </div>
         </div>
 
         <script src="/diff.min.js"></script>
@@ -213,8 +282,15 @@
                 compare: {}
             };
 
-            const createDiff = ()=>{
-                if(studentFile === "" || compareFile === "") return;
+            const closeDiff = ()=>{
+                document.getElementById("diffContainer").style.display = "none";
+            }
+
+            const displayDiff = ()=>{
+                if(studentFile === "" || compareFile === ""){
+                    console.log("Need to select 2 files");
+                    return;
+                }
 
                 let diff = Diff.diffLines(studentFile, compareFile);
 
@@ -229,6 +305,7 @@
                     p.textContent = diff[i].value;
                     diffElem.appendChild(p);
                 }
+                document.getElementById("diffContainer").style.display = "flex";
             }
 
             const displayFile = (student, content)=>{
