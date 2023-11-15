@@ -56,6 +56,10 @@
                 background: gray;
             }
 
+            .fileButton.active{
+                background: #383838;
+            }
+
             .fileDisplay{
                 height: 100%;
                 width: 33%;
@@ -146,13 +150,7 @@
                             }
                             let displayElem = student ? "studentFile" : "compareFile";
                             displayElem = document.getElementById(displayElem);
-                            while(displayElem.children.length > 0){
-                                displayElem.removeChild(displayElem.firstChild);
-                            }
-
                             displayElem.textContent = response.text;
-                            createDiff();
-                            //hljs.highlightAll();
                             displayElem.removeAttribute("data-highlighted");
                             hljs.highlightElement(displayElem);
                         }
@@ -179,6 +177,10 @@
                             file.textContent = response.student.files[i];
                             file.addEventListener("click", ()=>{
                                 displayFile(response.student, i, true);
+                                for(let i = 0; i < studentFilesDiv.children.length; i++){
+                                    studentFilesDiv.children[i].classList.remove("active");
+                                }
+                                file.classList.add("active");
                             });
                             studentFilesDiv.appendChild(file);
                         }
@@ -190,6 +192,10 @@
                             file.textContent = response.compare.files[i];
                             file.addEventListener("click", ()=>{
                                 displayFile(response.compare, i, false);
+                                for(let i = 0; i < compareFilesDiv.children.length; i++){
+                                    compareFilesDiv.children[i].classList.remove("active");
+                                }
+                                file.classList.add("active");
                             });
                             compareFilesDiv.appendChild(file);
                         }
