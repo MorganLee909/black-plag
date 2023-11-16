@@ -392,7 +392,9 @@
                     return;
                 }
 
+                console.time("lcs");
                 let str = lcs(studentFile, compareFile);
+                console.timeEnd("lcs");
 
                 codeElem.textContent = str;
                 codeElem.removeAttribute("data-highlighted");
@@ -416,14 +418,17 @@
                 while(diffElem.children.length > 0){
                     diffElem.removeChild(diffElem.firstChild);
                 }
+                let perfectMatch = true;
                 for(let i = 0; i < diff.length; i++){
                     const color = diff[i].added ? "green" : diff[i].removed ? "red" : "gray";
+                    if(color !== "gray") perfectMatch = false;
                     let p = document.createElement("p");
                     p.style.color = color;
                     p.textContent = diff[i].value;
                     diffElem.appendChild(p);
                 }
                 document.getElementById("diffContainer").style.display = "flex";
+                document.querySelector("#innerDiff h2").textContent = perfectMatch ? "Diff (100% match)" : "Diff";
             }
 
             const displayFile = (student, content)=>{
