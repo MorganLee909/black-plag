@@ -534,3 +534,9 @@ https://github.com/Akafifi/mongooseMedia,readRedis,14
 https://github.com/Akafifi/mongooseMedia,indexData,5
 https://github.com/Akafifi/mongooseMedia,compareIndices,2
 https://github.com/Akafifi/mongooseMedia,overallTimeNoClone,860
+https://github.com/Akafifi/mongooseMedia.git,clone,1007
+https://github.com/Akafifi/mongooseMedia,writeRedis,16
+https://github.com/Akafifi/mongooseMedia,readRedis,14
+https://github.com/Akafifi/mongooseMedia,indexData,6
+https://github.com/Akafifi/mongooseMedia,compareIndices,1
+https://github.com/Akafifi/mongooseMedia,overallTimeNoClone,1385

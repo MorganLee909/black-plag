@@ -98,7 +98,7 @@
             #diffContainer{
                 display: flex;
                 justify-content: space-around;
-                align-items: center;
+                align-items: flex-start;
                 background: #12130f;
                 height: 100vh;
                 width: 100vw;
@@ -108,8 +108,18 @@
                 z-index: 2;
             }
 
+            #diffContainer > *{
+                width: 40%;
+                margin-top: 50px;
+            }
+
+            #diffContainer #diffLegend{
+                margin: auto 0;
+                width: 15%;
+            }
+
             #diffLegend li{
-                margin: 15px;
+                margin: 0 15px 15px 15px;
             }
 
             #diffHeader{
@@ -127,21 +137,31 @@
                 top: 35px;
                 left: 35px;
                 cursor: pointer;
+                width: initial;
+                margin-top: 0;
             }
 
             #innerDiff{
-                height: 100%;
-                width: 33%;
+                height: 95%;
             }
 
             #innerDiff h2{
                 text-align: center;
-                margin-top: 35px;
+                margin: 0 0 15px 0;
             }
 
             #diffFile{
                 height: 90%;
                 width: 100%;
+            }
+
+            #lcsContainer > *{
+                margin: 0 0 15px 0;
+            }
+
+            #lcsString{
+                max-height: 90%;
+                overflow-y: auto;
             }
 
             #loaderContainer{
@@ -311,6 +331,17 @@
 
                 <div id="diffFile" class="fileDisplay"></div>
             </div>
+
+            <div id="lcsContainer">
+                <h2>Longest Common Substring (LCS)</h2>
+
+                <pre><code id="lcsString"></code></pre>
+
+                <div id="lcsStats">
+                    <p id="lcsLength"></p>
+                    <p id="lcsPercent"></p>
+                </div>
+            </div>
         </div>
 
         <script src="/diff.min.js"></script>
@@ -344,11 +375,40 @@
                 document.getElementById("diffContainer").style.display = "none";
             }
 
+            const displayLcs = ()=>{
+                let codeElem = document.getElementById("lcsString");
+                let lcsLength = document.getElementById("lcsLength");
+                let lcsPercent = document.getElementById("lcsPercent");
+
+                if(studentFile.length > 10000){
+                    codeElem.textContent = "Student file too large for LCS";
+                    lcsLength.textContent = "";
+                    lcsPercent.textContent = "";
+                    return;
+                }else if(compareFile.length > 10000){
+                    codeElem.textContent = "Compare file too large for LCS";
+                    lcsLength.textContent = "";
+                    lcsPercent.textContent = "";
+                    return;
+                }
+
+                let str = lcs(studentFile, compareFile);
+
+                codeElem.textContent = str;
+                codeElem.removeAttribute("data-highlighted");
+                hljs.highlightElement(codeElem);
+                
+                lcsLength.textContent = `LCS length: ${str.length}`;
+                lcsPercent.textContent = `Percent of file: ${((str.length / studentFile.length) * 100).toFixed(2)}%`;
+            }
+
             const displayDiff = ()=>{
                 if(studentFile === "" || compareFile === ""){
                     notify("error", "Must select a student and a compare file");
                     return;
                 }
+
+                displayLcs();
 
                 let diff = Diff.diffLines(studentFile, compareFile);
 
@@ -469,6 +529,34 @@
                     .catch((err)=>{
                         console.log(err);
                     });
+            }
+
+            const lcs = (str1, str2)=>{
+                let table = [];
+
+                let max = 0;
+                let maxI = 0;
+                let maxJ = 0;
+                for(let i = 0; i < str1.length; i++){
+                    table.push([]);
+                    for(let j = 0; j < str2.length; j++){
+                        if(str1[i] === str2[j]){
+                            let score = i <= 1 || j <= 1 ? 0 : table[i-1][j-1] + 1;
+                            table[i][j] = score;
+                            if(score > max){
+                                max = score;
+                                maxI = i;
+                                maxJ = j;
+                            }
+                            
+                        }else{
+                            table[i][j] = 0;
+                        }
+                    }
+                }
+
+                let string = str1.substring(maxI - max + 1, maxI + 1);
+                return string.trim();
             }
 
             getRepositoryData();
