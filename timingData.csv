@@ -564,3 +564,9 @@ https://github.com/MarkoAndreev/nosql,readRedis,16
 https://github.com/MarkoAndreev/nosql,indexData,6
 https://github.com/MarkoAndreev/nosql,compareIndices,2
 https://github.com/MarkoAndreev/nosql,overallTimeNoClone,1828
+https://github.com/eymerin/Express-Note-Taker.git,clone,1246
+https://github.com/eymerin/Express-Note-Taker,writeRedis,7
+https://github.com/eymerin/Express-Note-Taker,readRedis,17
+https://github.com/eymerin/Express-Note-Taker,indexData,6
+https://github.com/eymerin/Express-Note-Taker,compareIndices,2
+https://github.com/eymerin/Express-Note-Taker,overallTimeNoClone,1593
