@@ -220,16 +220,20 @@
     </div>
 
     <div id="notes" style="display:none">
-        <h1>PLEASE READ BEFORE USING</h1>
+        <h1>Notes and updates (November 16, 2023)</h1>
 
         <ul>
+            <li>File comparisons are now avaiable. After search just choose "Compare" and you can compare the student file and the potential match.</li>
+            <li>This is just a tool to help compare the repositories, nothing is "proof" of plagiarism, use your own judgement.</li>
+            <li>The diff and LCS tool has issues with whitespaces, so it won't be very helpful when indentation is different. I am working on resolving this</li>
+            <li>This is a work in progress, feel free to reach out to me with any issues/suggestions/complaints</li>
+        </ul>
+
+        <ul style="color:gray">
             <li>This site is meant to be used as an aid to help find plagiarism. It is not a full and complete solution.</li>
             <li>This tool can only search against repositories that have already been indexed. This means that a student may have copied code from a repository that is not yet in the database. Therefore, if you don't get a match here it may still be plagiarism. Try searching on GitHub.</li>
-            <li>If you do find a plagiarism match on GitHub that didn't display here, please search that repository that you found. It will upload and index the repository so that others can search against it in the future.</li>
+            <li>If you do find a plagiarism match on GitHub that didn't displayed here, please search that repository that you found. It will upload and index the repository so that others can search against it in the future.</li>
             <li>Finding a match here (even 100%) does not ensure plagiarism. Sometimes repos are just similar with no copying, sometimes false positives happen. If you find a good match here, be sure to investigate it yourself.</li>
-            <li>Indexing and searching entire repositories is expensive, so searches may take several seconds. If it takes more than 10 - 20 seconds, there is a good chance that something went wrong.</li>
-            <li>This is currently in a beta version. Issues may arise. Feel free to reach out to me (lmorgan@instructors.2u.com) if you believe you have found some bug or issue. Or if you have a feature request.</li>
-            <li><strong>This beta version is primarily for stress testing. To monitor resource usage on the server. There is a possibility of very slow responses or errors if usage is greater than expected.</strong></li>
         </ul>
 
         <button onclick="understands()">I understand</button>
@@ -284,11 +288,12 @@
     </template>
 
     <script>
-        let intro = localStorage.getItem("visited");
+        let intro = localStorage.getItem("visited2");
+        localStorage.removeItem("visited");
         if(!intro) document.getElementById("notes").style.display = "flex";
 
         const understands = ()=>{
-            localStorage.setItem("visited", true);
+            localStorage.setItem("visited2", true);
             document.getElementById("notes").style.display = "none";
         }
 
