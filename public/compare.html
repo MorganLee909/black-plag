@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8"/>
+        <title>Repository Comparison | Black Plag</title>
+        <link rel="stylesheet" href="/vs2015.min.css"/>
+        <style>
+            *{margin:0;padding:0;box-sizing:border-box;}
+            body{
+                display: flex;
+                flex-direction: column;
+                height: 100vh;
+                width: 100vw;
+                background: #12130F;
+                color: white;
+            }
+
+            h1{
+                text-align: center;
+                margin-bottom: 10px;
+            }
+
+            .actionButtons{
+                display: flex;
+                justify-content: center;
+            }
+
+            .actionButtons button{
+                background: #324672;
+                border: none;
+                color: white;
+                padding: 5px 10px;
+                cursor: pointer;
+                margin-bottom: 10px;
+            }
+
+            .actionButtons button:hover{
+                background: #3e588e;
+            }
+
+            #filesDiv{
+                display: flex;
+                justify-content: center;
+                align-items: flex-start;
+                height: 85%;
+                width: 100%;
+            }
+
+            .fileContainer{
+                box-shadow: 0 0 5px #383838;
+                margin: 5px;
+                padding: 15px;
+            }
+
+            .fileContainer h2{
+                color: #324672;
+                text-decoration: underline;
+            }
+
+            .files{
+                display: flex;
+                flex-direction: column;
+            }
+
+            .fileButton{
+                background: none;
+                border: none;
+                color: white;
+                margin: 5px 0;
+                text-align: left;
+                cursor: pointer;
+            }
+
+            .fileButton:hover{
+                background: gray;
+            }
+
+            .fileButton.active{
+                background: #383838;
+            }
+
+            .fileDisplay{
+                height: 100%;
+                width: 33%;
+                background: #1e1e1e;
+                color: black;
+                white-space: pre;
+                overflow-y: auto;
+                font-size: 12px;
+                font-style: mono;
+                margin: 5px;
+            }
+
+            .fileDisplay code{
+                min-height: 100%;
+            }
+
+            #diffContainer{
+                display: flex;
+                justify-content: space-around;
+                align-items: flex-start;
+                background: #12130f;
+                height: 100vh;
+                width: 100vw;
+                position: fixed;
+                top: 0;
+                left: 0;
+                z-index: 2;
+            }
+
+            #diffContainer > *{
+                width: 40%;
+                margin-top: 50px;
+            }
+
+            #diffContainer #diffLegend{
+                margin: auto 0;
+                width: 15%;
+            }
+
+            #diffLegend li{
+                margin: 0 15px 15px 15px;
+            }
+
+            #diffHeader{
+                font-size: 35px;
+                font-weight: bold;
+                list-style-type: none;
+                color: #324672;
+                text-decoration: underline;
+            }
+
+            #returnButton{
+                background: none;
+                border: none;
+                position: absolute;
+                top: 35px;
+                left: 35px;
+                cursor: pointer;
+                width: initial;
+                margin-top: 0;
+            }
+
+            #innerDiff{
+                height: 95%;
+            }
+
+            #innerDiff h2{
+                text-align: center;
+                margin: 0 0 15px 0;
+            }
+
+            #diffFile{
+                height: 90%;
+                width: 100%;
+            }
+
+            #lcsContainer > *{
+                margin: 0 0 15px 0;
+            }
+
+            #lcsString{
+                max-height: 90%;
+                overflow-y: auto;
+            }
+
+            #loaderContainer{
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background: rgba(94, 94, 94, 0.5);
+                position: fixed;
+                width: 100vw;
+                height: 100vh;
+                top: 0;
+                left: 0;
+                z-index: 3;
+            }
+
+            .loader {
+              --w:10ch;
+              font-weight: bold;
+              font-family: monospace;
+              font-size: 30px;
+              line-height: 1.2em;
+              letter-spacing: var(--w);
+              width: var(--w);
+              overflow: hidden;
+              white-space: nowrap;
+              color: #0000;
+              animation: l19 2s infinite linear;
+            }
+            .loader:before {
+              content: "LOADING...";
+            }
+
+            @keyframes l19 {
+               0% {text-shadow:
+                    calc( 0*var(--w)) 0,calc(-1*var(--w)) 0,calc(-2*var(--w)) 0,calc(-3*var(--w)) 0,calc(-4*var(--w)) 0,
+                    calc(-5*var(--w)) 0,calc(-6*var(--w)) 0,calc(-7*var(--w)) 0,calc(-8*var(--w)) 0,calc(-9*var(--w)) 0}
+               4% {text-shadow:
+                    calc( 0*var(--w)) 0 #000,calc(-1*var(--w)) 0,calc(-2*var(--w)) 0,calc(-3*var(--w)) 0,calc(-4*var(--w)) 0,
+                    calc(-5*var(--w)) 0,calc(-6*var(--w)) 0,calc(-7*var(--w)) 0,calc(-8*var(--w)) 0,calc(-9*var(--w)) 0}
+               8% {text-shadow:
+                    calc( 0*var(--w)) 0 #000,calc(-1*var(--w)) 0 #000,calc(-2*var(--w)) 0,calc(-3*var(--w)) 0,calc(-4*var(--w)) 0,
+                    calc(-5*var(--w)) 0,calc(-6*var(--w)) 0,calc(-7*var(--w)) 0,calc(-8*var(--w)) 0,calc(-9*var(--w)) 0}
+              12% {text-shadow:
+                    calc( 0*var(--w)) 0 #000,calc(-1*var(--w)) 0 #000,calc(-2*var(--w)) 0 #000,calc(-3*var(--w)) 0,calc(-4*var(--w)) 0,
+                    calc(-5*var(--w)) 0,calc(-6*var(--w)) 0,calc(-7*var(--w)) 0,calc(-8*var(--w)) 0,calc(-9*var(--w)) 0}
+              16% {text-shadow:
+                    calc( 0*var(--w)) 0 #000,calc(-1*var(--w)) 0 #000,calc(-2*var(--w)) 0 #000,calc(-3*var(--w)) 0 #000,calc(-4*var(--w)) 0,
+                    calc(-5*var(--w)) 0,calc(-6*var(--w)) 0,calc(-7*var(--w)) 0,calc(-8*var(--w)) 0,calc(-9*var(--w)) 0}
+              20% {text-shadow:
+                    calc( 0*var(--w)) 0 #000,calc(-1*var(--w)) 0 #000,calc(-2*var(--w)) 0 #000,calc(-3*var(--w)) 0 #000,calc(-4*var(--w)) 0 #000,
+                    calc(-5*var(--w)) 0,calc(-6*var(--w)) 0,calc(-7*var(--w)) 0,calc(-8*var(--w)) 0,calc(-9*var(--w)) 0}
+              24% {text-shadow:
+                    calc( 0*var(--w)) 0 #000,calc(-1*var(--w)) 0 #000,calc(-2*var(--w)) 0 #000,calc(-3*var(--w)) 0 #000,calc(-4*var(--w)) 0 #000,
+                    calc(-5*var(--w)) 0 #000,calc(-6*var(--w)) 0,calc(-7*var(--w)) 0,calc(-8*var(--w)) 0,calc(-9*var(--w)) 0}
+              28% {text-shadow:
+                    calc( 0*var(--w)) 0 #000,calc(-1*var(--w)) 0 #000,calc(-2*var(--w)) 0 #000,calc(-3*var(--w)) 0 #000,calc(-4*var(--w)) 0 #000,
+                    calc(-5*var(--w)) 0 #000,calc(-6*var(--w)) 0 #000,calc(-7*var(--w)) 0,calc(-8*var(--w)) 0,calc(-9*var(--w)) 0}
+              32% {text-shadow:
+                    calc( 0*var(--w)) 0 #000,calc(-1*var(--w)) 0 #000,calc(-2*var(--w)) 0 #000,calc(-3*var(--w)) 0 #000,calc(-4*var(--w)) 0 #000,
+                    calc(-5*var(--w)) 0 #000,calc(-6*var(--w)) 0 #000,calc(-7*var(--w)) 0 #000,calc(-8*var(--w)) 0,calc(-9*var(--w)) 0}
+              36% {text-shadow:
+                    calc( 0*var(--w)) 0 #000,calc(-1*var(--w)) 0 #000,calc(-2*var(--w)) 0 #000,calc(-3*var(--w)) 0 #000,calc(-4*var(--w)) 0 #000,
+                    calc(-5*var(--w)) 0 #000,calc(-6*var(--w)) 0 #000,calc(-7*var(--w)) 0 #000,calc(-8*var(--w)) 0 #000,calc(-9*var(--w)) 0}
+              40%,
+              60% {text-shadow:
+                    calc( 0*var(--w)) 0 #000,calc(-1*var(--w)) 0 #000,calc(-2*var(--w)) 0 #000,calc(-3*var(--w)) 0 #000,calc(-4*var(--w)) 0 #000,
+                    calc(-5*var(--w)) 0 #000,calc(-6*var(--w)) 0 #000,calc(-7*var(--w)) 0 #000,calc(-8*var(--w)) 0 #000,calc(-9*var(--w)) 0 #000}
+              64% {text-shadow:
+                    calc( 0*var(--w)) 0,calc(-1*var(--w)) 0 #000,calc(-2*var(--w)) 0 #000,calc(-3*var(--w)) 0 #000,calc(-4*var(--w)) 0 #000,
+                    calc(-5*var(--w)) 0 #000,calc(-6*var(--w)) 0 #000,calc(-7*var(--w)) 0 #000,calc(-8*var(--w)) 0 #000,calc(-9*var(--w)) 0 #000}
+              68% {text-shadow:
+                    calc( 0*var(--w)) 0,calc(-1*var(--w)) 0,calc(-2*var(--w)) 0 #000,calc(-3*var(--w)) 0 #000,calc(-4*var(--w)) 0 #000,
+                    calc(-5*var(--w)) 0 #000,calc(-6*var(--w)) 0 #000,calc(-7*var(--w)) 0 #000,calc(-8*var(--w)) 0 #000,calc(-9*var(--w)) 0 #000}
+              72% {text-shadow:
+                    calc( 0*var(--w)) 0,calc(-1*var(--w)) 0,calc(-2*var(--w)) 0,calc(-3*var(--w)) 0 #000,calc(-4*var(--w)) 0 #000,
+                    calc(-5*var(--w)) 0 #000,calc(-6*var(--w)) 0 #000,calc(-7*var(--w)) 0 #000,calc(-8*var(--w)) 0 #000,calc(-9*var(--w)) 0 #000}
+              76% {text-shadow:
+                    calc( 0*var(--w)) 0,calc(-1*var(--w)) 0,calc(-2*var(--w)) 0,calc(-3*var(--w)) 0,calc(-4*var(--w)) 0 #000,
+                    calc(-5*var(--w)) 0 #000,calc(-6*var(--w)) 0 #000,calc(-7*var(--w)) 0 #000,calc(-8*var(--w)) 0 #000,calc(-9*var(--w)) 0 #000}
+              80% {text-shadow:
+                    calc( 0*var(--w)) 0,calc(-1*var(--w)) 0,calc(-2*var(--w)) 0,calc(-3*var(--w)) 0,calc(-4*var(--w)) 0,
+                    calc(-5*var(--w)) 0 #000,calc(-6*var(--w)) 0 #000,calc(-7*var(--w)) 0 #000,calc(-8*var(--w)) 0 #000,calc(-9*var(--w)) 0 #000}
+              84% {text-shadow:
+                    calc( 0*var(--w)) 0,calc(-1*var(--w)) 0,calc(-2*var(--w)) 0,calc(-3*var(--w)) 0,calc(-4*var(--w)) 0,
+                    calc(-5*var(--w)) 0,calc(-6*var(--w)) 0 #000,calc(-7*var(--w)) 0 #000,calc(-8*var(--w)) 0 #000,calc(-9*var(--w)) 0 #000}
+              88% {text-shadow:
+                    calc( 0*var(--w)) 0,calc(-1*var(--w)) 0,calc(-2*var(--w)) 0,calc(-3*var(--w)) 0,calc(-4*var(--w)) 0,
+                    calc(-5*var(--w)) 0,calc(-6*var(--w)) 0,calc(-7*var(--w)) 0 #000,calc(-8*var(--w)) 0 #000,calc(-9*var(--w)) 0 #000}
+              92% {text-shadow:
+                    calc( 0*var(--w)) 0,calc(-1*var(--w)) 0,calc(-2*var(--w)) 0,calc(-3*var(--w)) 0,calc(-4*var(--w)) 0,
+                    calc(-5*var(--w)) 0,calc(-6*var(--w)) 0,calc(-7*var(--w)) 0,calc(-8*var(--w)) 0 #000,calc(-9*var(--w)) 0 #000}
+              96% {text-shadow:
+                    calc( 0*var(--w)) 0,calc(-1*var(--w)) 0,calc(-2*var(--w)) 0,calc(-3*var(--w)) 0,calc(-4*var(--w)) 0,
+                    calc(-5*var(--w)) 0,calc(-6*var(--w)) 0,calc(-7*var(--w)) 0,calc(-8*var(--w)) 0,calc(-9*var(--w)) 0 #000}
+              100% {text-shadow:
+                    calc( 0*var(--w)) 0,calc(-1*var(--w)) 0,calc(-2*var(--w)) 0,calc(-3*var(--w)) 0,calc(-4*var(--w)) 0,
+                    calc(-5*var(--w)) 0,calc(-6*var(--w)) 0,calc(-7*var(--w)) 0,calc(-8*var(--w)) 0,calc(-9*var(--w)) 0}
+            }
+
+            .notifier{
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                position: fixed;
+                top: 15px;
+                left: calc(50% - 375px);
+                width: 750px;
+                font-size: 22px;
+                font-weight: bold;
+                text-align: center;
+            }
+
+            .notifier.error{
+                background: red;
+            }
+
+            .notifier.success{
+                background: green;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="loaderContainer" style="display:none">
+            <div class="loader"></div>
+        </div>
+
+        <h1>File Comparison</h1>
+
+        <div class="actionButtons">
+            <button id="diffButton" onclick="displayDiff()">Show Diff</button>
+        </div>
+
+        <div id="filesDiv">
+            <div class="fileContainer">
+                <h2>Student code</h2>
+
+                <div id="studentFiles" class="files"></div>
+            </div>
+
+            <pre class="fileDisplay"><code id="studentFile"></code></pre>
+
+            <pre class="fileDisplay"><code id="compareFile"></code></pre>
+
+            <div class="fileContainer">
+                <h2>Comparison code</h2>
+
+                <div id="compareFiles" class="files"></div>
+            </div>
+        </div>
+        
+        <div id="diffContainer" style="display:none">
+            <button id="returnButton" onclick="closeDiff()">
+                <svg width="35px" height="35px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" color="#ffffff">
+                    <path d="M6.75827 17.2426L12.0009 12M17.2435 6.75736L12.0009 12M12.0009 12L6.75827 6.75736M12.0009 12L17.2435 17.2426" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+            </button>
+
+            <ul id="diffLegend">
+                <li id="diffHeader">Legend</li>
+                <li style="color:gray">Lines in gray are an exact match between student and comparison code.</li>
+                <li style="color:red">Lines in red appear in the student code, but not the comparison code.</li>
+                <li style="color:green">Lines in green appear in the comparison code, but not the student code.</li>
+            </ul>
+
+            <div id="innerDiff">
+                <h2>Diff</h2>
+
+                <div id="diffFile" class="fileDisplay"></div>
+            </div>
+
+            <div id="lcsContainer">
+                <h2>Longest Common Substring (LCS)</h2>
+
+                <pre><code id="lcsString"></code></pre>
+
+                <div id="lcsStats">
+                    <p id="lcsLength"></p>
+                    <p id="lcsPercent"></p>
+                </div>
+            </div>
+        </div>
+
+        <script src="/diff.min.js"></script>
+        <script src="/highlight.min.js"></script>
+        <script>
+            let studentFile = "";
+            let compareFile = "";
+
+            let savedFiles = {
+                student: {},
+                compare: {}
+            };
+
+            const notify = (type, message)=>{
+                let notifier = document.createElement("div");
+                notifier.classList.add("notifier");
+                notifier.classList.add(type);
+                document.body.appendChild(notifier);
+                
+                let p = document.createElement("p");
+                p.textContent = message;
+                p.classList.add("notifierContent");
+                notifier.appendChild(p);
+
+                setTimeout(()=>{
+                    notifier.parentElement.removeChild(notifier);
+                }, 5000);
+            }
+
+            const closeDiff = ()=>{
+                document.getElementById("diffContainer").style.display = "none";
+            }
+
+            const displayLcs = ()=>{
+                let codeElem = document.getElementById("lcsString");
+                let lcsLength = document.getElementById("lcsLength");
+                let lcsPercent = document.getElementById("lcsPercent");
+
+                if(studentFile.length > 10000){
+                    codeElem.textContent = "Student file too large for LCS";
+                    lcsLength.textContent = "";
+                    lcsPercent.textContent = "";
+                    return;
+                }else if(compareFile.length > 10000){
+                    codeElem.textContent = "Compare file too large for LCS";
+                    lcsLength.textContent = "";
+                    lcsPercent.textContent = "";
+                    return;
+                }
+
+                console.time("lcs");
+                let str = lcs(studentFile, compareFile);
+                console.timeEnd("lcs");
+
+                codeElem.textContent = str;
+                codeElem.removeAttribute("data-highlighted");
+                hljs.highlightElement(codeElem);
+                
+                lcsLength.textContent = `LCS length: ${str.length}`;
+                lcsPercent.textContent = `Percent of file: ${((str.length / studentFile.length) * 100).toFixed(2)}%`;
+            }
+
+            const displayDiff = ()=>{
+                if(studentFile === "" || compareFile === ""){
+                    notify("error", "Must select a student and a compare file");
+                    return;
+                }
+
+                displayLcs();
+
+                let diff = Diff.diffLines(studentFile, compareFile);
+
+                let diffElem = document.getElementById("diffFile");
+                while(diffElem.children.length > 0){
+                    diffElem.removeChild(diffElem.firstChild);
+                }
+                let perfectMatch = true;
+                for(let i = 0; i < diff.length; i++){
+                    const color = diff[i].added ? "green" : diff[i].removed ? "red" : "gray";
+                    if(color !== "gray") perfectMatch = false;
+                    let p = document.createElement("p");
+                    p.style.color = color;
+                    p.textContent = diff[i].value;
+                    diffElem.appendChild(p);
+                }
+                document.getElementById("diffContainer").style.display = "flex";
+                document.querySelector("#innerDiff h2").textContent = perfectMatch ? "Diff (100% match)" : "Diff";
+            }
+
+            const displayFile = (student, content)=>{
+                let displayElem = student ? "studentFile" : "compareFile";
+                displayElem = document.getElementById(displayElem);
+                displayElem.textContent = content;
+                displayElem.removeAttribute("data-highlighted");
+                hljs.highlightElement(displayElem);
+            }
+            
+            const retrieveFile = (repoData, idx, student)=>{
+                let localFile = student ? savedFiles.student[repoData.files[idx]] : savedFiles.compare[repoData.files[idx]];
+                if(localFile){
+                    if(student){
+                       studentFile = localFile;
+                    }else{
+                        compareFile = localFile;
+                    }
+                    displayFile(student, localFile);
+                }else{
+                    let loader = document.getElementById("loaderContainer");
+                    loader.style.display = "flex";
+                    fetch("/file", {
+                        method: "post",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            repoId: repoData.uuid,
+                            filePath: repoData.files[idx],
+                            mod: repoData.module
+                        })
+                    })
+                        .then(r=>r.json())
+                        .then((response)=>{
+                            if(typeof(response) === "string"){
+                                console.log(response);
+                            }else{
+                                if(student){
+                                    studentFile = response.text;
+                                    savedFiles.student[repoData.files[idx]] = response.text;
+                                }else{
+                                    compareFile = response.text;
+                                    savedFiles.compare[repoData.files[idx]] = response.text;
+                                }
+
+                                displayFile(student, response.text);
+                            }
+                        })
+                        .catch((err)=>{
+                            console.log(err);
+                        })
+                        .finally(()=>{
+                            loader.style.display = "none";
+                        });
+                }
+            }
+
+            const getRepositoryData = ()=>{
+                let parts = window.location.href.split("/");
+
+                fetch(`/repositories/${parts[4]}/${parts[5]}`)
+                    .then(r=>r.json())
+                    .then((response)=>{
+                        if(typeof(response) === "string"){
+                            return;
+                        }
+
+                        let studentFilesDiv = document.getElementById("studentFiles");
+                        for(let i = 0; i < response.student.files.length; i++){
+                            let file = document.createElement("button");
+                            file.classList.add("fileButton");
+                            file.textContent = response.student.files[i];
+                            file.addEventListener("click", ()=>{
+                                retrieveFile(response.student, i, true);
+                                for(let i = 0; i < studentFilesDiv.children.length; i++){
+                                    studentFilesDiv.children[i].classList.remove("active");
+                                }
+                                file.classList.add("active");
+                            });
+                            studentFilesDiv.appendChild(file);
+                        }
+
+                        let compareFilesDiv = document.getElementById("compareFiles");
+                        for(let i = 0; i < response.compare.files.length; i++){
+                            let file = document.createElement("button");
+                            file.classList.add("fileButton");
+                            file.textContent = response.compare.files[i];
+                            file.addEventListener("click", ()=>{
+                                retrieveFile(response.compare, i, false);
+                                for(let i = 0; i < compareFilesDiv.children.length; i++){
+                                    compareFilesDiv.children[i].classList.remove("active");
+                                }
+                                file.classList.add("active");
+                            });
+                            compareFilesDiv.appendChild(file);
+                        }
+                        
+                        let width = studentFilesDiv.clientWidth > compareFilesDiv.clientWidth ? studentFilesDiv.clientWidth : compareFilesDiv.clientWidth;
+                        studentFilesDiv.style.width = `${width}px`;
+                        compareFilesDiv.style.width = `${width}px`;
+                    })
+                    .catch((err)=>{
+                        console.log(err);
+                    });
+            }
+
+            const lcs = (str1, str2)=>{
+                let table = [];
+
+                let max = 0;
+                let maxI = 0;
+                let maxJ = 0;
+                for(let i = 0; i < str1.length; i++){
+                    table.push([]);
+                    for(let j = 0; j < str2.length; j++){
+                        if(str1[i] === str2[j]){
+                            let score = i <= 1 || j <= 1 ? 0 : table[i-1][j-1] + 1;
+                            table[i][j] = score;
+                            if(score > max){
+                                max = score;
+                                maxI = i;
+                                maxJ = j;
+                            }
+                            
+                        }else{
+                            table[i][j] = 0;
+                        }
+                    }
+                }
+
+                let string = str1.substring(maxI - max + 1, maxI + 1);
+                return string.trim();
+            }
+
+            getRepositoryData();
+        </script>
+    </body>
+</html>

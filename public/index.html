@@ -91,8 +91,26 @@
             width: 750px;
             margin: 15px;
             color: black;
-            padding: 35px;
             text-decoration: none;
+        }
+
+        .plagiarismResult .options{
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            height: 100%;
+        }
+
+        .plagiarismResult .options a{
+            background: #12130f;
+            color: white;
+            text-decoration: none;
+            padding: 10px 10px;
+            margin-right: 15px;
+        }
+
+        .plagiarismResult .options a:hover{
+            background: #383838;
         }
 
         .alertText{
@@ -202,16 +220,21 @@
     </div>
 
     <div id="notes" style="display:none">
-        <h1>PLEASE READ BEFORE USING</h1>
+        <h1>Notes and updates (November 16, 2023)</h1>
 
         <ul>
+            <li>File comparisons are now avaiable. After search just choose "Compare" and you can compare the student file and the potential match.</li>
+            <li>The files available for comparison are most of the important code for each repository. Things such as 'node_modules' have been removed.</li>
+            <li>This is just a tool to help compare the repositories, nothing is "proof" of plagiarism, use your own judgement.</li>
+            <li>The diff and LCS tool has issues with whitespaces, so it won't be very helpful when indentation is different. I am working on resolving this</li>
+            <li>This is a work in progress, feel free to reach out to me with any issues/suggestions/complaints</li>
+        </ul>
+
+        <ul style="color:gray">
             <li>This site is meant to be used as an aid to help find plagiarism. It is not a full and complete solution.</li>
             <li>This tool can only search against repositories that have already been indexed. This means that a student may have copied code from a repository that is not yet in the database. Therefore, if you don't get a match here it may still be plagiarism. Try searching on GitHub.</li>
-            <li>If you do find a plagiarism match on GitHub that didn't display here, please search that repository that you found. It will upload and index the repository so that others can search against it in the future.</li>
+            <li>If you do find a plagiarism match on GitHub that didn't displayed here, please search that repository that you found. It will upload and index the repository so that others can search against it in the future.</li>
             <li>Finding a match here (even 100%) does not ensure plagiarism. Sometimes repos are just similar with no copying, sometimes false positives happen. If you find a good match here, be sure to investigate it yourself.</li>
-            <li>Indexing and searching entire repositories is expensive, so searches may take several seconds. If it takes more than 10 - 20 seconds, there is a good chance that something went wrong.</li>
-            <li>This is currently in a beta version. Issues may arise. Feel free to reach out to me (lmorgan@instructors.2u.com) if you believe you have found some bug or issue. Or if you have a feature request.</li>
-            <li><strong>This beta version is primarily for stress testing. To monitor resource usage on the server. There is a possibility of very slow responses or errors if usage is greater than expected.</strong></li>
         </ul>
 
         <button onclick="understands()">I understand</button>
@@ -221,23 +244,23 @@
         <form id="homeForm">
             <select id="homeModuleSelect">
                 <option value="none" default>Choose Module</option>
-                <option value="01">1</option>
-                <option value="02">2</option>
-                <option value="03">3</option>
-                <option value="04">4</option>
-                <option value="05">5</option>
-                <option value="06">6</option>
-                <option value="09">9</option>
-                <option value="10">10</option>
-                <option value="11">11</option>
-                <option value="12">12</option>
-                <option value="13">13</option>
-                <option value="14">14</option>
-                <option value="17">17</option>
-                <option value="18">18</option>
-                <option value="19">19</option>
-                <option value="20">20</option>
-                <option value="21">21</option>
+                <option value="01">Module 1</option>
+                <option value="02">Module 2</option>
+                <option value="03">Module 3</option>
+                <option value="04">Module 4</option>
+                <option value="05">Module 5</option>
+                <option value="06">Module 6</option>
+                <option value="09">Module 9</option>
+                <option value="10">Module 10</option>
+                <option value="11">Module 11</option>
+                <option value="12">Module 12</option>
+                <option value="13">Module 13</option>
+                <option value="14">Module 14</option>
+                <option value="17">Module 17</option>
+                <option value="18">Module 18</option>
+                <option value="19">Module 19</option>
+                <option value="20">Module 20</option>
+                <option value="21">Module 21</option>
             </select>
             
             <input id="homeGithubLink" type="url" placeholder="GitHub Link"/>
@@ -249,22 +272,29 @@
     </div>
 
     <template id="plagiarismResult">
-        <a class="plagiarismResult" target="_blank">
+        <div class="plagiarismResult">
             <div>
                 <p class="resultUser"></p>
                 <p class="resultRepo"></p>
             </div>
 
             <p class="resultPercent"></p>
-        </a>
+
+            <div class="options">
+                <a class="repoLink" target="_blank">Repo -></a>
+
+                <a class="compareLink" target="_blank">Compare -></a>
+            </div>
+        </div>
     </template>
 
     <script>
-        let intro = localStorage.getItem("visited");
+        let intro = localStorage.getItem("visited2");
+        localStorage.removeItem("visited");
         if(!intro) document.getElementById("notes").style.display = "flex";
 
         const understands = ()=>{
-            localStorage.setItem("visited", true);
+            localStorage.setItem("visited2", true);
             document.getElementById("notes").style.display = "none";
         }
 
@@ -279,7 +309,8 @@
 
             for(let i = 0; i < data.results.length; i++){
                 let result = template.cloneNode(true);
-                result.href = data.results[i].compareRepo.link;
+                result.querySelector(".repoLink").href = data.results[i].compareRepo.link;
+                result.querySelector(".compareLink").href = `/compare/${data.studentRepo._id}/${data.results[i].compareRepo._id}`;
                 result.querySelector(".resultUser").textContent = `User: ${data.results[i].compareRepo.user}`;
                 result.querySelector(".resultRepo").textContent = `Repo: ${data.results[i].compareRepo.repo}`;
                 result.querySelector(".resultPercent").textContent = `${Math.round(data.results[i].cs * 100)}% repository match`;
@@ -331,6 +362,7 @@
                     displayResults(response);
                 })
                 .catch((err)=>{
+                    console.log(err);
                     notify("error", err);
                 })
                 .finally(()=>{

@@ -7,7 +7,7 @@ const calculateIDF = async (mod)=>{
     for(let i = 0; i < repos.length; i++){
         let terms = {};
         try{
-            let terms = Object.keys(repos[i].tf);
+            terms = Object.keys(repos[i].tf);
         }catch(e){
             console.error(`No TF for: ${repos[i].uuid}`);
             continue;

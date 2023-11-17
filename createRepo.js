@@ -5,14 +5,20 @@ const uuid = require("crypto").randomUUID;
 const util = require("util");
 const exec = util.promisify(require("child_process").exec);
 const fs = require("fs");
+const fsPromises = require("fs/promises");
 
 const removeFiles = (filePath)=>{
     let fileName = filePath.split("/");
     fileName = fileName[fileName.length-1];
     fileName = fileName.toLowerCase();
 
-    if(fileName === "build" || fileName === "dist" || fileName === "node_modules"){
-        fs.rm(filePath, {recursive: true, force: true}, (err)=>{});
+    if(
+        fileName === "build" ||
+        fileName === "dist" ||
+        fileName === "node_modules" ||
+        fileName === ".git"
+    ){
+        fs.rmSync(filePath, {recursive: true}, (err)=>{});
     }else if(
         !fileName.includes(".js") &&
         !fileName.includes(".css") && 
@@ -22,8 +28,17 @@ const removeFiles = (filePath)=>{
         !fileName.includes(".handlebars") &&
         !fileName.includes(".hbs")
     ){
-        fs.rm(filePath, {}, (err)=>{})
+        try{
+            fs.rmSync(filePath, {}, (err)=>{})
+        }catch(e){
+            if(e.info.code !== "EISDIR") console.error(e);
+        }
     }
+}
+
+const createFileList = (path, repo)=>{
+    if(fs.lstatSync(path).isDirectory()) return;
+    repo.files.push(path.substring(path.indexOf(repo.uuid) + repo.uuid.length));
 }
 
 const cloneRepo = async (mod, link)=>{
@@ -55,7 +70,10 @@ const createDocument = (mod, id, repo)=>{
         module: mod,
         created: new Date(),
         lastUpdated: new Date(),
+        files: []
     });
+
+    recurseDirectory(`${__dirname}/repos/module${mod}/${id}`, createFileList, newRepo);
 
     return newRepo;
 }

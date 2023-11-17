@@ -4,3 +4,4 @@ repos/*
 idf.json
 *.swp
 dump.rdb
+timingData.csv
