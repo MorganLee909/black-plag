@@ -289,8 +289,9 @@
     </template>
 
     <script>
-        let intro = localStorage.getItem("visited2");
+        let intro = localStorage.getItem("visited3");
         localStorage.removeItem("visited");
+        localStorage.removeItem("visted2");
         if(!intro) document.getElementById("notes").style.display = "flex";
 
         const understands = ()=>{
