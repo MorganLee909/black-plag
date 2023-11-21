@@ -1,4 +1,5 @@
 const Repo = require("./repo.js");
+const Search = require("./search.js");
 const {createClient} = require("redis");
 
 const {cloneRepo, createDocument, removeExisting} = require("./createRepo.js");
@@ -24,6 +25,14 @@ module.exports = (app)=>{
     response = [Repo]
     */
     app.get("/search*", async (req, res)=>{
+        let search = new Search({
+            link: req.query.repo.replaceAll(".git", ""),
+            ipAddress: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
+            module: Number(req.query.module),
+            date: new Date()
+        });
+        search.save().catch((err)=>{console.error(err)});
+
         if(req.query.repo.includes("github.com/coding-boot-camp")) return res.json("Cannot upload this repository");
         let startTime = new Date().getTime();
         const mod = parseInt(req.query.module);
