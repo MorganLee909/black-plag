@@ -242,25 +242,46 @@
 
     <div id="homePage" class="page">
         <form id="homeForm">
-            <select id="homeModuleSelect">
+            <select id="homeCourseSelect">
+                <option value="none" default>Choose Course</option>
+                <option value="fsf">Full Stack Flex</option>
+                <option value="fe">Front-End</option>
+            </select>
+
+            <select id="homeModuleSelect" style="display:none">
                 <option value="none" default>Choose Module</option>
-                <option value="01">Horiseon refactor (FSF1)</option>
-                <option value="02">Portfolio (FSF2)</option>
-                <option value="03">Password generator (FSF3)</option>
-                <option value="04">JavaScript coding quiz (FSF4)</option>
-                <option value="05">Workday planner (FSF5)</option>
-                <option value="06">Weather forecast (FSF6)</option>
-                <option value="09">README generator (FSF9)</option>
-                <option value="10">SVG logo generator (FSF10)</option>
-                <option value="11">Express note taker (FSF11)</option>
-                <option value="12">SQL employee tracker (FSF12)</option>
-                <option value="13">E-Commerce back-end (FSF13)</option>
-                <option value="14">Tech Blog (FSF14)</option>
-                <option value="17">Regex tutorial (FSF17)</option>
-                <option value="18">Social network API (FSF18)</option>
-                <option value="19">PWA (FSF19)</option>
-                <option value="20">React portfolio (FSF20)</option>
-                <option value="21">MERN book search (FSF21)</option>
+                <option value="01">(01) Horiseon refactor</option>
+                <option value="02">(02) Portfolio</option>
+                <option value="03">(03) Password generator</option>
+                <option value="04">(04) JavaScript coding quiz</option>
+                <option value="05">(05) Workday planner</option>
+                <option value="06">(06) Weather forecast</option>
+                <option value="09">(09) README generator</option>
+                <option value="10">(10) SVG logo generator</option>
+                <option value="11">(11) Express note taker</option>
+                <option value="12">(12) SQL employee tracker</option>
+                <option value="13">(13) E-Commerce back-end</option>
+                <option value="14">(14) Tech Blog</option>
+                <option value="17">(17) Regex tutorial</option>
+                <option value="18">(18) Social network API</option>
+                <option value="19">(19) PWA</option>
+                <option value="20">(20) React portfolio</option>
+                <option value="21">(21) MERN book search</option>
+            </select>
+
+            <select id="homeModuleSelectFrontEnd" style="display:none">
+                <option value="none" default>Choose Module</option>
+                <option value="01">(01) Horiseon refactor</option>
+                <option value="02">(02) Portfolio</option>
+                <option value="03">(03) Bootstrap portfolio</option>
+                <option value="04">(04) Console finances</option>
+                <option value="05">(05) Password generator</option>
+                <option value="06">(06) JavaScript coding quiz</option>
+                <option value="07">(07) Workday planner</option>
+                <option value="08">(08) Weather forecase</option>
+                <option value="11">(11) README generator</option>
+                <option value="12">(12) Employee roster generator</option>
+                <option value="13">(13) React portfolio</option>
             </select>
             
             <input id="homeGithubLink" type="url" placeholder="GitHub Link"/>
@@ -363,7 +384,6 @@
                     displayResults(response);
                 })
                 .catch((err)=>{
-                    console.log(err);
                     notify("error", err);
                 })
                 .finally(()=>{
@@ -372,6 +392,30 @@
         }
 
         document.getElementById("homeForm").addEventListener("submit", submitSearch);
+
+        let courseSelect = document.getElementById("homeCourseSelect");
+        courseSelect.addEventListener("change", ()=>{
+            let val = courseSelect.value;
+            let fsfSelect = document.getElementById("homeModuleSelect");
+            let feSelect = document.getElementById("homeModuleSelectFrontEnd");
+            fsfSelect.value = "none";
+            feSelect.value = "none";
+
+            switch(val){
+                case "none":
+                    fsfSelect.style.display = "none";
+                    feSelect.style.display = "none";
+                    break;
+                case "fsf":
+                    fsfSelect.style.display = "inline-block";
+                    feSelect.style.display = "none";
+                    break;
+                case "fe":
+                    fsfSelect.style.display = "none";
+                    feSelect.style.display = "inline-block";
+                    break;
+            }
+        });
     </script>
 </body>
 </html>
