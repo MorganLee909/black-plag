@@ -359,7 +359,17 @@
 
         const submitSearch = (e)=>{
             e.preventDefault();
-            let mod = document.getElementById("homeModuleSelect").value;
+            let course = document.getElementById("homeCourseSelect").value;
+            let mod = 0;
+            switch(course){
+                case "fsf":
+                    mod = document.getElementById("homeModuleSelect").value;
+                    break;
+                case "fe":
+                    mod = parseInt(document.getElementById("homeModuleSelectFrontEnd").value);
+                    mod = (mod + 21).toString();
+                    mod = mod.padStart(2, "0");
+            }
             let repo = document.getElementById("homeGithubLink").value;
 
             if(mod === "none") return;
@@ -379,7 +389,9 @@
                         return;
                     }
 
+                    document.getElementById("homeCourseSelect").value = "none";
                     document.getElementById("homeModuleSelect").value = "none";
+                    document.getElementById("homeModuleSelectFrontEnd").value = "none";
                     document.getElementById("homeGithubLink").value = "";
                     displayResults(response);
                 })
@@ -416,6 +428,8 @@
                     break;
             }
         });
+
+        document.getElementById("homeCourseSelect").value = "none";
     </script>
 </body>
 </html>

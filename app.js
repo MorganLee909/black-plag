@@ -38,7 +38,7 @@ global.db = mongoose.connect(mongoString, mongooseOptions);
 //Calculate IDF for all corpuses
 const getIdf = async ()=>{
     let idf = {};
-    for(let i = 1; i <= 21; i++){
+    for(let i = 1; i <= 34; i++){
         idf[String(i).padStart(2, "0")] = await calculateIDF(i);
     }
     const redClient = await createClient().connect();
